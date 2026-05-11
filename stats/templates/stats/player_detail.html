@@ -1,0 +1,260 @@
+{% extends "stats/base.html" %}
+{% load stat_filters %}
+
+{% block title %}{{ player.DISPLAY_FIRST_LAST|default:"Jogador" }} — NBA Stats Explorer{% endblock %}
+
+{% block content %}
+<div class="page-transition">
+
+    {% if player %}
+    <!-- ═══ Player Hero ═══ -->
+    <section class="relative overflow-hidden bg-gradient-to-br from-nba-blue via-nba-blue-dark to-slate-900">
+        <!-- Decorative bg -->
+        <div class="absolute inset-0">
+            <div class="absolute top-0 right-0 w-96 h-96 bg-nba-gold/10 rounded-full blur-3xl"></div>
+            <div class="absolute bottom-0 left-0 w-96 h-96 bg-nba-red/10 rounded-full blur-3xl"></div>
+        </div>
+
+        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
+            <div class="flex flex-col md:flex-row items-center gap-8">
+                <!-- Player headshot -->
+                <div class="w-40 h-40 md:w-52 md:h-52 rounded-2xl overflow-hidden bg-white/10 border-2 border-white/20 shadow-2xl flex-shrink-0 animate-fade-in relative">
+                    <div class="absolute inset-0 flex items-center justify-center text-white/40 text-5xl font-bold">
+                        {{ player.FIRST_NAME|slice:":1" }}{{ player.LAST_NAME|slice:":1" }}
+                    </div>
+                    <img
+                        src="{{ player.HEADSHOT_URL }}"
+                        alt="{{ player.DISPLAY_FIRST_LAST }}"
+                        class="w-full h-full object-cover relative z-10"
+                        onerror="this.style.opacity='0';"
+                    >
+                </div>
+
+                <!-- Player info -->
+                <div class="text-center md:text-left animate-fade-in delay-200">
+                    <div class="flex flex-wrap items-center justify-center md:justify-start gap-3 mb-3">
+                        {% if player.JERSEY %}
+                        <span class="text-4xl font-black text-white/30">#{{ player.JERSEY }}</span>
+                        {% endif %}
+                    </div>
+                    <h1 class="text-3xl md:text-5xl font-black text-white mb-3">
+                        {{ player.DISPLAY_FIRST_LAST }}
+                    </h1>
+                    <div class="flex flex-wrap items-center justify-center md:justify-start gap-4 text-white/70">
+                        {% if player.TEAM_NAME %}
+                        <span class="flex items-center gap-1.5">
+                            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M19 21V5a2 2 0 00-2-2H7a2 2 0 00-2 2v16m14 0h2m-2 0h-5m-9 0H3m2 0h5"/>
+                            </svg>
+                            {{ player.TEAM_CITY }} {{ player.TEAM_NAME }}
+                        </span>
+                        {% endif %}
+                        {% if player.POSITION %}
+                        <span class="stat-badge">{{ player.POSITION }}</span>
+                        {% endif %}
+                    </div>
+
+                    <!-- Bio details -->
+                    <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-8">
+                        {% if player.HEIGHT %}
+                        <div class="bg-white/10 rounded-xl px-4 py-3 text-center">
+                            <p class="text-xs text-white/50 uppercase tracking-wider">Altura</p>
+                            <p class="text-lg font-bold text-white">{{ player.HEIGHT }}</p>
+                        </div>
+                        {% endif %}
+                        {% if player.WEIGHT %}
+                        <div class="bg-white/10 rounded-xl px-4 py-3 text-center">
+                            <p class="text-xs text-white/50 uppercase tracking-wider">Peso</p>
+                            <p class="text-lg font-bold text-white">{{ player.WEIGHT }} lbs</p>
+                        </div>
+                        {% endif %}
+                        {% if player.COUNTRY %}
+                        <div class="bg-white/10 rounded-xl px-4 py-3 text-center">
+                            <p class="text-xs text-white/50 uppercase tracking-wider">País</p>
+                            <p class="text-lg font-bold text-white">{{ player.COUNTRY }}</p>
+                        </div>
+                        {% endif %}
+                        {% if player.DRAFT_YEAR %}
+                        <div class="bg-white/10 rounded-xl px-4 py-3 text-center">
+                            <p class="text-xs text-white/50 uppercase tracking-wider">Draft</p>
+                            <p class="text-lg font-bold text-white">{{ player.DRAFT_YEAR }}</p>
+                        </div>
+                        {% endif %}
+                    </div>
+                </div>
+            </div>
+        </div>
+    </section>
+
+    <!-- ═══ Stats Content ═══ -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+        <!-- Career Averages Card -->
+        {% if career.career %}
+        <div class="mb-10 animate-slide-up">
+            <h2 class="text-xl font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
+                <svg class="w-5 h-5 text-nba-gold dark:text-nba-gold-light" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                </svg>
+                Médias de Carreira
+            </h2>
+            <div class="grid grid-cols-2 sm:grid-cols-3 md:grid-cols-5 lg:grid-cols-7 gap-3">
+                {% with c=career.career %}
+                <div class="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-100 dark:border-slate-700 text-center">
+                    <p class="text-xs text-slate-400 uppercase tracking-wider mb-1">Jogos</p>
+                    <p class="text-2xl font-bold text-slate-800 dark:text-white">{{ c.GP|default:"—" }}</p>
+                </div>
+                <div class="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-100 dark:border-slate-700 text-center">
+                    <p class="text-xs text-slate-400 uppercase tracking-wider mb-1">PPG</p>
+                    <p class="text-2xl font-bold text-nba-blue dark:text-nba-blue-light">{{ c.PTS|format_stat|default:"—" }}</p>
+                </div>
+                <div class="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-100 dark:border-slate-700 text-center">
+                    <p class="text-xs text-slate-400 uppercase tracking-wider mb-1">RPG</p>
+                    <p class="text-2xl font-bold text-nba-red dark:text-nba-red-light">{{ c.REB|format_stat|default:"—" }}</p>
+                </div>
+                <div class="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-100 dark:border-slate-700 text-center">
+                    <p class="text-xs text-slate-400 uppercase tracking-wider mb-1">APG</p>
+                    <p class="text-2xl font-bold text-nba-gold dark:text-nba-gold-light">{{ c.AST|format_stat|default:"—" }}</p>
+                </div>
+                <div class="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-100 dark:border-slate-700 text-center">
+                    <p class="text-xs text-slate-400 uppercase tracking-wider mb-1">FG%</p>
+                    <p class="text-2xl font-bold text-slate-800 dark:text-white">{{ c.FG_PCT|format_pct|default:"—" }}</p>
+                </div>
+                <div class="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-100 dark:border-slate-700 text-center">
+                    <p class="text-xs text-slate-400 uppercase tracking-wider mb-1">3P%</p>
+                    <p class="text-2xl font-bold text-slate-800 dark:text-white">{{ c.FG3_PCT|format_pct|default:"—" }}</p>
+                </div>
+                <div class="bg-white dark:bg-slate-800 rounded-xl p-4 border border-slate-100 dark:border-slate-700 text-center">
+                    <p class="text-xs text-slate-400 uppercase tracking-wider mb-1">FT%</p>
+                    <p class="text-2xl font-bold text-slate-800 dark:text-white">{{ c.FT_PCT|format_pct|default:"—" }}</p>
+                </div>
+                {% endwith %}
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Season-by-Season Stats -->
+        {% if career.seasons %}
+        <div class="mb-10 animate-slide-up delay-200">
+            <h2 class="text-xl font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
+                <svg class="w-5 h-5 text-nba-blue dark:text-nba-blue-light" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                </svg>
+                Estatísticas por Temporada
+            </h2>
+            <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 overflow-x-auto shadow-sm">
+                <table class="stats-table w-full text-sm">
+                    <thead>
+                        <tr class="text-left border-b border-slate-200 dark:border-slate-700">
+                            <th class="px-4 py-3 font-semibold text-slate-500 dark:text-slate-400 whitespace-nowrap">Temporada</th>
+                            <th class="px-4 py-3 font-semibold text-slate-500 dark:text-slate-400 whitespace-nowrap">Time</th>
+                            <th class="px-4 py-3 font-semibold text-slate-500 dark:text-slate-400 text-center">GP</th>
+                            <th class="px-4 py-3 font-semibold text-slate-500 dark:text-slate-400 text-center">MIN</th>
+                            <th class="px-4 py-3 font-semibold text-nba-blue dark:text-nba-blue-light text-center">PTS</th>
+                            <th class="px-4 py-3 font-semibold text-slate-500 dark:text-slate-400 text-center">REB</th>
+                            <th class="px-4 py-3 font-semibold text-slate-500 dark:text-slate-400 text-center">AST</th>
+                            <th class="px-4 py-3 font-semibold text-slate-500 dark:text-slate-400 text-center">STL</th>
+                            <th class="px-4 py-3 font-semibold text-slate-500 dark:text-slate-400 text-center">BLK</th>
+                            <th class="px-4 py-3 font-semibold text-slate-500 dark:text-slate-400 text-center">FG%</th>
+                            <th class="px-4 py-3 font-semibold text-slate-500 dark:text-slate-400 text-center">3P%</th>
+                            <th class="px-4 py-3 font-semibold text-slate-500 dark:text-slate-400 text-center">FT%</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for s in career.seasons reversed %}
+                        <tr class="border-b border-slate-100 dark:border-slate-700/50 last:border-0">
+                            <td class="px-4 py-3 font-medium text-slate-700 dark:text-slate-200 whitespace-nowrap">{{ s.SEASON_ID }}</td>
+                            <td class="px-4 py-3 text-slate-600 dark:text-slate-300 whitespace-nowrap">{{ s.TEAM_ABBREVIATION }}</td>
+                            <td class="px-4 py-3 text-center text-slate-600 dark:text-slate-300">{{ s.GP }}</td>
+                            <td class="px-4 py-3 text-center text-slate-600 dark:text-slate-300">{{ s.MIN|format_stat }}</td>
+                            <td class="px-4 py-3 text-center font-semibold text-nba-blue dark:text-nba-blue-light">{{ s.PTS|format_stat }}</td>
+                            <td class="px-4 py-3 text-center text-slate-600 dark:text-slate-300">{{ s.REB|format_stat }}</td>
+                            <td class="px-4 py-3 text-center text-slate-600 dark:text-slate-300">{{ s.AST|format_stat }}</td>
+                            <td class="px-4 py-3 text-center text-slate-600 dark:text-slate-300">{{ s.STL|format_stat }}</td>
+                            <td class="px-4 py-3 text-center text-slate-600 dark:text-slate-300">{{ s.BLK|format_stat }}</td>
+                            <td class="px-4 py-3 text-center text-slate-600 dark:text-slate-300">{{ s.FG_PCT|format_pct }}</td>
+                            <td class="px-4 py-3 text-center text-slate-600 dark:text-slate-300">{{ s.FG3_PCT|format_pct }}</td>
+                            <td class="px-4 py-3 text-center text-slate-600 dark:text-slate-300">{{ s.FT_PCT|format_pct }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+
+        <!-- Recent Game Log -->
+        {% if game_log %}
+        <div class="animate-slide-up delay-300">
+            <h2 class="text-xl font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
+                <svg class="w-5 h-5 text-nba-red dark:text-nba-red-light" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                </svg>
+                Jogos Recentes ({{ season }})
+            </h2>
+            <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 overflow-x-auto shadow-sm">
+                <table class="stats-table w-full text-sm">
+                    <thead>
+                        <tr class="text-left border-b border-slate-200 dark:border-slate-700">
+                            <th class="px-4 py-3 font-semibold text-slate-500 dark:text-slate-400 whitespace-nowrap">Data</th>
+                            <th class="px-4 py-3 font-semibold text-slate-500 dark:text-slate-400 whitespace-nowrap">Adversário</th>
+                            <th class="px-4 py-3 font-semibold text-slate-500 dark:text-slate-400 text-center">Res.</th>
+                            <th class="px-4 py-3 font-semibold text-slate-500 dark:text-slate-400 text-center">MIN</th>
+                            <th class="px-4 py-3 font-semibold text-nba-blue dark:text-nba-blue-light text-center">PTS</th>
+                            <th class="px-4 py-3 font-semibold text-slate-500 dark:text-slate-400 text-center">REB</th>
+                            <th class="px-4 py-3 font-semibold text-slate-500 dark:text-slate-400 text-center">AST</th>
+                            <th class="px-4 py-3 font-semibold text-slate-500 dark:text-slate-400 text-center">STL</th>
+                            <th class="px-4 py-3 font-semibold text-slate-500 dark:text-slate-400 text-center">BLK</th>
+                            <th class="px-4 py-3 font-semibold text-slate-500 dark:text-slate-400 text-center">FG</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for g in game_log %}
+                        <tr class="border-b border-slate-100 dark:border-slate-700/50 last:border-0">
+                            <td class="px-4 py-3 text-slate-600 dark:text-slate-300 whitespace-nowrap">{{ g.GAME_DATE }}</td>
+                            <td class="px-4 py-3 font-medium text-slate-700 dark:text-slate-200 whitespace-nowrap">{{ g.MATCHUP }}</td>
+                            <td class="px-4 py-3 text-center">
+                                {% if g.WL == "W" %}
+                                <span class="px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400">W</span>
+                                {% else %}
+                                <span class="px-2 py-0.5 rounded-full text-xs font-semibold bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400">L</span>
+                                {% endif %}
+                            </td>
+                            <td class="px-4 py-3 text-center text-slate-600 dark:text-slate-300">{{ g.MIN }}</td>
+                            <td class="px-4 py-3 text-center font-semibold text-nba-blue dark:text-nba-blue-light">{{ g.PTS }}</td>
+                            <td class="px-4 py-3 text-center text-slate-600 dark:text-slate-300">{{ g.REB }}</td>
+                            <td class="px-4 py-3 text-center text-slate-600 dark:text-slate-300">{{ g.AST }}</td>
+                            <td class="px-4 py-3 text-center text-slate-600 dark:text-slate-300">{{ g.STL }}</td>
+                            <td class="px-4 py-3 text-center text-slate-600 dark:text-slate-300">{{ g.BLK }}</td>
+                            <td class="px-4 py-3 text-center text-slate-600 dark:text-slate-300">{{ g.FGM }}/{{ g.FGA }}</td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+        </div>
+        {% endif %}
+
+    </div>
+
+    {% else %}
+    <!-- Player not found -->
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
+        <div class="w-20 h-20 mx-auto mb-6 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
+            <svg class="w-10 h-10 text-slate-300 dark:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+            </svg>
+        </div>
+        <h2 class="text-xl font-semibold text-slate-600 dark:text-slate-400 mb-2">Dados do jogador indisponíveis</h2>
+        <p class="text-slate-400 dark:text-slate-500 mb-6">Não foi possível carregar as informações deste jogador. Tente novamente mais tarde.</p>
+        <a href="{% url 'stats:index' %}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-nba-blue hover:bg-nba-blue-dark text-white rounded-xl font-medium transition-colors">
+            <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+            </svg>
+            Voltar ao início
+        </a>
+    </div>
+    {% endif %}
+
+</div>
+{% endblock %}

@@ -1,0 +1,159 @@
+{% load static tailwind_tags %}
+{% load stat_filters %}
+<!DOCTYPE html>
+<html lang="pt-BR" class="scroll-smooth">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <meta name="referrer" content="no-referrer">
+    <meta name="description" content="NBA Stats Explorer — Pesquise e visualize estatísticas detalhadas de times e jogadores da NBA em tempo real.">
+    <title>{% block title %}NBA Stats Explorer{% endblock %}</title>
+
+    <!-- Google Fonts: Inter -->
+    <link rel="preconnect" href="https://fonts.googleapis.com">
+    <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600;700;800;900&display=swap" rel="stylesheet">
+
+    <!-- Tailwind CSS (compiled by django-tailwind) -->
+    {% tailwind_css %}
+
+    <!-- Custom CSS -->
+    <link rel="stylesheet" href="{% static 'css/main.css' %}?v=2">
+
+    <!-- Dark mode init (prevent flash of wrong theme) -->
+    <script>
+        (function() {
+            const theme = localStorage.getItem('theme');
+            if (theme === 'dark' || (!theme && window.matchMedia('(prefers-color-scheme: dark)').matches)) {
+                document.documentElement.classList.add('dark');
+            }
+        })();
+    </script>
+</head>
+<body class="bg-bg-light dark:bg-bg-dark text-slate-800 dark:text-slate-100 font-sans transition-colors duration-300 min-h-screen flex flex-col">
+
+    <!-- ═══ Navbar ═══ -->
+    <nav class="sticky top-0 z-50 glass border-b border-slate-200/50 dark:border-slate-700/50" id="main-nav">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
+            <div class="flex items-center justify-between h-16">
+                <!-- Logo -->
+                <a href="{% url 'stats:index' %}" class="flex items-center gap-3 group" id="nav-logo">
+                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-nba-blue to-nba-red flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
+                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="10" stroke-width="2"/>
+                            <path stroke-width="2" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10"/>
+                            <path stroke-width="2" d="M2 12h20"/>
+                            <path stroke-width="2.5" stroke-linecap="round" d="M12 6v12"/>
+                        </svg>
+                    </div>
+                    <span class="text-lg font-bold bg-gradient-to-r from-nba-blue to-nba-red bg-clip-text text-transparent hidden sm:block">
+                        NBA Stats Explorer
+                    </span>
+                </a>
+
+                <!-- Search bar (desktop) -->
+                <form action="{% url 'stats:search' %}" method="GET" class="relative z-50 hidden md:flex flex-1 max-w-md mx-8" id="nav-search-form">
+                    <div class="relative w-full group">
+                        <input
+                            type="text"
+                            name="q"
+                            placeholder="Buscar jogador ou time..."
+                            value="{{ request.GET.q|default:'' }}"
+                            class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-sm placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-nba-blue/50 focus:border-nba-blue transition-all"
+                            id="nav-search-input"
+                            autocomplete="off"
+                        >
+                        <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-nba-blue transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+                        
+                        <!-- Autocomplete Dropdown (Desktop) -->
+                        <div id="nav-search-suggestions" class="absolute left-0 right-0 top-full mt-2 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden z-50 hidden opacity-0 transition-opacity duration-200">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                </form>
+
+                <!-- Right side: Theme toggle + mobile menu -->
+                <div class="flex items-center gap-3">
+                    <!-- Dark mode toggle -->
+                    <button id="theme-toggle" class="relative w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 flex items-center justify-center transition-all" aria-label="Alternar tema">
+                        <!-- Sun icon -->
+                        <svg class="w-5 h-5 text-amber-500 dark:hidden" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 3v1m0 16v1m9-9h-1M4 12H3m15.364 6.364l-.707-.707M6.343 6.343l-.707-.707m12.728 0l-.707.707M6.343 17.657l-.707.707M16 12a4 4 0 11-8 0 4 4 0 018 0z"/>
+                        </svg>
+                        <!-- Moon icon -->
+                        <svg class="w-5 h-5 text-nba-blue-light hidden dark:block" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M20.354 15.354A9 9 0 018.646 3.646 9.003 9.003 0 0012 21a9.003 9.003 0 008.354-5.646z"/>
+                        </svg>
+                    </button>
+
+                    <!-- Mobile menu button -->
+                    <button id="mobile-menu-btn" class="md:hidden w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 flex items-center justify-center transition-all" aria-label="Menu">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                        </svg>
+                    </button>
+                </div>
+            </div>
+
+            <!-- Mobile search (hidden by default) -->
+            <div id="mobile-search" class="md:hidden pb-4 hidden">
+                <form action="{% url 'stats:search' %}" method="GET">
+                    <div class="relative">
+                        <input
+                            type="text"
+                            name="q"
+                            placeholder="Buscar jogador ou time..."
+                            value="{{ request.GET.q|default:'' }}"
+                            class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-nba-blue/50 transition-all"
+                            id="mobile-search-input"
+                        >
+                        <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                        </svg>
+
+                        <!-- Autocomplete Dropdown (Mobile) -->
+                        <div id="mobile-search-suggestions" class="absolute left-0 right-0 top-full mt-2 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden z-50 hidden opacity-0 transition-opacity duration-200">
+                            <!-- Populated by JS -->
+                        </div>
+                    </div>
+                </form>
+            </div>
+        </div>
+    </nav>
+
+    <!-- ═══ Main Content ═══ -->
+    <main class="flex-1 page-transition">
+        {% block content %}{% endblock %}
+    </main>
+
+    <!-- ═══ Footer ═══ -->
+    <footer class="border-t border-slate-200 dark:border-slate-800 bg-white/50 dark:bg-slate-900/50 mt-auto">
+        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8">
+            <div class="flex flex-col md:flex-row items-center justify-between gap-4">
+                <div class="flex items-center gap-2">
+                    <div class="w-8 h-8 rounded-lg bg-gradient-to-br from-nba-blue to-nba-red flex items-center justify-center">
+                        <svg class="w-4 h-4 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <circle cx="12" cy="12" r="10" stroke-width="2"/>
+                            <path stroke-width="2" d="M2 12h20"/>
+                        </svg>
+                    </div>
+                    <span class="text-sm font-semibold text-slate-600 dark:text-slate-400">NBA Stats Explorer</span>
+                </div>
+                <p class="text-xs text-slate-400 dark:text-slate-500 text-center">
+                    Dados fornecidos pela <a href="https://github.com/swar/nba_api" target="_blank" class="text-nba-blue hover:underline">nba_api</a>.
+                    Este projeto não é afiliado à NBA.
+                </p>
+                <p class="text-xs text-slate-400 dark:text-slate-500">
+                    &copy; 2025 NBA Stats Explorer
+                </p>
+            </div>
+        </div>
+    </footer>
+
+    <!-- Scripts -->
+    <script src="{% static 'js/app.js' %}"></script>
+    {% block extra_js %}{% endblock %}
+</body>
+</html>

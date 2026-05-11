@@ -1,0 +1,4 @@
+django>=5.1,<7.0
+django-tailwind[reload]>=3.8
+nba_api>=1.4
+requests>=2.31
