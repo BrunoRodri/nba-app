@@ -1,0 +1,69 @@
+{% load stat_filters %}
+
+<div class="bg-slate-200/50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700/50 overflow-hidden shadow-sm animate-slide-up">
+    <div class="px-5 py-3 border-b border-slate-200/50 dark:border-slate-700/50 flex items-center gap-2.5">
+        <img
+            src="https://cdn.nba.com/logos/nba/{{ team_id }}/global/L/logo.svg"
+            alt="{{ team_label }}"
+            class="w-6 h-6 object-contain"
+            onerror="this.style.display='none'"
+        >
+        <h3 class="text-base font-bold text-slate-700 dark:text-slate-200">{{ team_label }}</h3>
+    </div>
+
+    <div class="overflow-x-auto">
+        <table class="stats-table w-full text-xs">
+            <thead>
+                <tr class="text-center border-b border-slate-200/50 dark:border-slate-700/50 bg-slate-100/60 dark:bg-slate-800/60">
+                    <th class="px-2.5 py-2 font-semibold text-slate-500 dark:text-slate-400 text-left">Jogador</th>
+                    <th class="px-2 py-2 font-semibold text-slate-500 dark:text-slate-400">MIN</th>
+                    <th class="px-2 py-2 font-semibold text-slate-500 dark:text-slate-400">PTS</th>
+                    <th class="px-2 py-2 font-semibold text-slate-500 dark:text-slate-400">REB</th>
+                    <th class="px-2 py-2 font-semibold text-slate-500 dark:text-slate-400">AST</th>
+                    <th class="px-2 py-2 font-semibold text-slate-500 dark:text-slate-400">STL</th>
+                    <th class="px-2 py-2 font-semibold text-slate-500 dark:text-slate-400">BLK</th>
+                    <th class="px-2 py-2 font-semibold text-slate-500 dark:text-slate-400">FG</th>
+                    <th class="px-2 py-2 font-semibold text-slate-500 dark:text-slate-400">3PT</th>
+                    <th class="px-2 py-2 font-semibold text-slate-500 dark:text-slate-400">FT</th>
+                    <th class="px-2 py-2 font-semibold text-slate-500 dark:text-slate-400">+/-</th>
+                </tr>
+            </thead>
+            <tbody>
+                {% for p in players %}
+                <tr class="border-b border-slate-100/50 dark:border-slate-700/30 last:border-0 hover:bg-slate-100/60 dark:hover:bg-slate-700/30 transition-colors text-center">
+                    <td class="px-2.5 py-2 text-left font-medium text-slate-700 dark:text-slate-200 whitespace-nowrap">
+                        {{ p.PLAYER_NAME }}
+                        {% if p.START_POSITION %}<span class="text-xs text-slate-400 dark:text-slate-500"> ({{ p.START_POSITION }})</span>{% endif %}
+                    </td>
+                    <td class="px-2 py-2 text-slate-500 dark:text-slate-400">{{ p.MIN }}</td>
+                    <td class="px-2 py-2 font-bold text-nba-blue dark:text-nba-blue-light">{{ p.PTS|default:"0"|fmt_int }}</td>
+                    <td class="px-2 py-2 text-slate-600 dark:text-slate-300">{{ p.REB|default:"0"|fmt_int }}</td>
+                    <td class="px-2 py-2 text-slate-600 dark:text-slate-300">{{ p.AST|default:"0"|fmt_int }}</td>
+                    <td class="px-2 py-2 text-slate-600 dark:text-slate-300">{{ p.STL|default:"0"|fmt_int }}</td>
+                    <td class="px-2 py-2 text-slate-600 dark:text-slate-300">{{ p.BLK|default:"0"|fmt_int }}</td>
+                    <td class="px-2 py-2 text-slate-500 dark:text-slate-400 whitespace-nowrap">{{ p.FGM }}/{{ p.FGA }}</td>
+                    <td class="px-2 py-2 text-slate-500 dark:text-slate-400 whitespace-nowrap">{{ p.FG3M }}/{{ p.FG3A }}</td>
+                    <td class="px-2 py-2 text-slate-500 dark:text-slate-400 whitespace-nowrap">{{ p.FTM }}/{{ p.FTA }}</td>
+                    <td class="px-2 py-2 text-slate-500 dark:text-slate-400">{{ p.PLUS_MINUS|fmt_int }}</td>
+                </tr>
+                {% endfor %}
+
+                {% if team_totals %}
+                <tr class="border-t-2 border-slate-300/50 dark:border-slate-600/50 bg-slate-100/60 dark:bg-slate-800/60 text-center font-bold">
+                    <td class="px-2.5 py-2 text-left text-slate-700 dark:text-slate-200">Totals</td>
+                    <td class="px-2 py-2 text-slate-500 dark:text-slate-400">{{ team_totals.MIN }}</td>
+                    <td class="px-2 py-2 text-nba-blue dark:text-nba-blue-light">{{ team_totals.PTS|default:"0"|fmt_int }}</td>
+                    <td class="px-2 py-2 text-slate-600 dark:text-slate-300">{{ team_totals.REB|default:"0"|fmt_int }}</td>
+                    <td class="px-2 py-2 text-slate-600 dark:text-slate-300">{{ team_totals.AST|default:"0"|fmt_int }}</td>
+                    <td class="px-2 py-2 text-slate-600 dark:text-slate-300">{{ team_totals.STL|default:"0"|fmt_int }}</td>
+                    <td class="px-2 py-2 text-slate-600 dark:text-slate-300">{{ team_totals.BLK|default:"0"|fmt_int }}</td>
+                    <td class="px-2 py-2 text-slate-600 dark:text-slate-300 whitespace-nowrap">{{ team_totals.FGM }}/{{ team_totals.FGA }}</td>
+                    <td class="px-2 py-2 text-slate-600 dark:text-slate-300 whitespace-nowrap">{{ team_totals.FG3M }}/{{ team_totals.FG3A }}</td>
+                    <td class="px-2 py-2 text-slate-600 dark:text-slate-300 whitespace-nowrap">{{ team_totals.FTM }}/{{ team_totals.FTA }}</td>
+                    <td class="px-2 py-2 text-slate-500 dark:text-slate-400">{{ team_totals.PLUS_MINUS|fmt_int }}</td>
+                </tr>
+                {% endif %}
+            </tbody>
+        </table>
+    </div>
+</div>

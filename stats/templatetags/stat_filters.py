@@ -36,3 +36,12 @@ def get_item(dictionary, key):
     if isinstance(dictionary, dict):
         return dictionary.get(key, '')
     return ''
+
+
+@register.filter
+def fmt_int(value):
+    """Format a value as integer (remove .0 decimals)."""
+    try:
+        return str(int(float(value)))
+    except (ValueError, TypeError):
+        return value

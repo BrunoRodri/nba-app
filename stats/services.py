@@ -16,6 +16,8 @@ from nba_api.stats.endpoints import (
     leaguegamefinder,
     leaguestandingsv3,
     teamyearbyyearstats,
+    boxscoresummaryv2,
+    boxscoretraditionalv2,
 )
 
 from .models import CachedPlayer, CachedTeam
@@ -180,7 +182,11 @@ def get_team_season_record(team_id, season=None):
         win_pct = round(wins / total, 3) if total > 0 else 0
 
         # Recent games should exclude preseason (starting with '1') but include playoffs
-        games_df = df[~df['SEASON_ID'].str.startswith('1')]
+        games_df = df[~df['SEASON_ID'].str.startswith('1')].copy()
+        if 'PTS' in games_df.columns and 'PLUS_MINUS' in games_df.columns:
+            games_df['PLUS_MINUS'] = games_df['PLUS_MINUS'].fillna(0)
+            games_df['PTS'] = games_df['PTS'].fillna(0)
+            games_df['OPP_PTS'] = (games_df['PTS'] - games_df['PLUS_MINUS']).astype(int)
         recent_games = games_df.head(10).to_dict('records')
 
         return {
@@ -290,3 +296,100 @@ def populate_team_cache():
         )
         count += 1
     return count
+
+
+# ─── Game detail ──────────────────────────────────────────────────────
+
+def get_game_boxscore(game_id):
+    try:
+        summary = boxscoresummaryv2.BoxScoreSummaryV2(
+            game_id=game_id,
+            timeout=API_TIMEOUT,
+        )
+
+        game_summary = summary.game_summary.get_data_frame()
+        line_score = summary.line_score.get_data_frame()
+        other_stats = summary.other_stats.get_data_frame()
+        officials = summary.officials.get_data_frame()
+        inactive = summary.inactive_players.get_data_frame()
+
+        game_info = {}
+        if not game_summary.empty:
+            gs = game_summary.iloc[0].to_dict()
+            game_info = {
+                'game_date': gs.get('GAME_DATE_EST', ''),
+                'game_status': gs.get('GAME_STATUS_TEXT', ''),
+                'home_team_id': gs.get('HOME_TEAM_ID'),
+                'visitor_team_id': gs.get('VISITOR_TEAM_ID'),
+            }
+
+        line_data = line_score.to_dict('records') if not line_score.empty else []
+        other_data = other_stats.to_dict('records') if not other_stats.empty else []
+        officials_data = officials.to_dict('records') if not officials.empty else []
+        inactive_data = inactive.to_dict('records') if not inactive.empty else []
+
+        home_line = None
+        visitor_line = None
+        for line in line_data:
+            if line.get('TEAM_ID') == game_info.get('home_team_id'):
+                home_line = line
+            elif line.get('TEAM_ID') == game_info.get('visitor_team_id'):
+                visitor_line = line
+
+        boxscore = boxscoretraditionalv2.BoxScoreTraditionalV2(
+            game_id=game_id,
+            end_period=0,
+            end_range=0,
+            range_type=0,
+            start_period=1,
+            start_range=0,
+            timeout=API_TIMEOUT,
+        )
+
+        player_stats = boxscore.player_stats.get_data_frame()
+        team_stats = boxscore.team_stats.get_data_frame()
+
+        home_players = []
+        visitor_players = []
+        if not player_stats.empty:
+            for _, row in player_stats.iterrows():
+                p = row.to_dict()
+                if p.get('TEAM_ID') == game_info.get('home_team_id'):
+                    home_players.append(p)
+                elif p.get('TEAM_ID') == game_info.get('visitor_team_id'):
+                    visitor_players.append(p)
+
+        home_team_totals = None
+        visitor_team_totals = None
+        if not team_stats.empty:
+            for _, row in team_stats.iterrows():
+                t = row.to_dict()
+                if t.get('TEAM_ID') == game_info.get('home_team_id'):
+                    home_team_totals = t
+                elif t.get('TEAM_ID') == game_info.get('visitor_team_id'):
+                    visitor_team_totals = t
+
+        home_other = None
+        visitor_other = None
+        for o in other_data:
+            if o.get('TEAM_ID') == game_info.get('home_team_id'):
+                home_other = o
+            elif o.get('TEAM_ID') == game_info.get('visitor_team_id'):
+                visitor_other = o
+
+        return {
+            'game_info': game_info,
+            'home_line': home_line,
+            'visitor_line': visitor_line,
+            'home_players': home_players,
+            'visitor_players': visitor_players,
+            'home_team_totals': home_team_totals,
+            'visitor_team_totals': visitor_team_totals,
+            'home_other': home_other,
+            'visitor_other': visitor_other,
+            'officials': officials_data,
+            'inactive_players': inactive_data,
+        }
+    except Exception as e:
+        logger.error(f"Error fetching boxscore for game {game_id}: {e}")
+        return None

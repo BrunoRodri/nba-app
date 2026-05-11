@@ -86,6 +86,20 @@ def team_season_games(request, team_id, season):
     }
     return render(request, 'stats/team_season_games.html', context)
 
+def game_detail(request, game_id):
+    boxscore = services.get_game_boxscore(game_id)
+
+    if not boxscore:
+        from django.shortcuts import redirect
+        return redirect('stats:index')
+
+    context = {
+        'game_id': game_id,
+        'boxscore': boxscore,
+    }
+    return render(request, 'stats/game_detail.html', context)
+
+
 def search_api(request):
     """API endpoint for search autocomplete."""
     query = request.GET.get('q', '').strip()

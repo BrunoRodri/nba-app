@@ -1,0 +1,180 @@
+{% extends "stats/base.html" %}
+{% load stat_filters %}
+
+{% block title %}{{ boxscore.visitor_line.TEAM_CITY_NAME }} {{ boxscore.visitor_line.TEAM_NICKNAME }} {{ boxscore.visitor_line.PTS }} - {{ boxscore.home_line.PTS }} {{ boxscore.home_line.TEAM_CITY_NAME }} {{ boxscore.home_line.TEAM_NICKNAME }} — NBA Stats Explorer{% endblock %}
+
+{% block content %}
+<div class="page-transition">
+
+    <section class="relative overflow-hidden bg-gradient-to-br from-slate-800 via-slate-900 to-slate-950 border-b border-slate-700/50">
+        <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-8 md:py-10">
+            <div class="flex items-center justify-center gap-6 md:gap-10">
+                <div class="flex flex-col items-center gap-2 text-center flex-1">
+                    <img
+                        src="https://cdn.nba.com/logos/nba/{{ boxscore.game_info.visitor_team_id }}/global/L/logo.svg"
+                        alt="{{ boxscore.visitor_line.TEAM_NICKNAME }}"
+                        class="w-12 h-12 md:w-16 md:h-16 object-contain drop-shadow-lg"
+                        onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                    >
+                    <div class="w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-white/10 items-center justify-center text-xl font-black text-white/40 hidden">
+                        {{ boxscore.visitor_line.TEAM_ABBREVIATION }}
+                    </div>
+                    <h2 class="text-sm md:text-base font-bold text-white leading-tight">{{ boxscore.visitor_line.TEAM_CITY_NAME }} {{ boxscore.visitor_line.TEAM_NICKNAME }}</h2>
+                    <p class="text-xs text-white/50">{{ boxscore.visitor_line.TEAM_WINS_LOSSES }}</p>
+                    <p class="text-3xl md:text-4xl font-black text-white">{{ boxscore.visitor_line.PTS|fmt_int }}</p>
+                </div>
+
+                <div class="flex flex-col items-center gap-1 flex-shrink-0">
+                    <span class="text-lg font-black text-white/20">VS</span>
+                    <span class="px-3 py-0.5 rounded-full text-xs font-semibold bg-white/10 text-white/70">{{ boxscore.game_info.game_status }}</span>
+                    <span class="text-xs text-white/40">{{ boxscore.game_info.game_date }}</span>
+                </div>
+
+                <div class="flex flex-col items-center gap-2 text-center flex-1">
+                    <img
+                        src="https://cdn.nba.com/logos/nba/{{ boxscore.game_info.home_team_id }}/global/L/logo.svg"
+                        alt="{{ boxscore.home_line.TEAM_NICKNAME }}"
+                        class="w-12 h-12 md:w-16 md:h-16 object-contain drop-shadow-lg"
+                        onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
+                    >
+                    <div class="w-12 h-12 md:w-16 md:h-16 rounded-2xl bg-white/10 items-center justify-center text-xl font-black text-white/40 hidden">
+                        {{ boxscore.home_line.TEAM_ABBREVIATION }}
+                    </div>
+                    <h2 class="text-sm md:text-base font-bold text-white leading-tight">{{ boxscore.home_line.TEAM_CITY_NAME }} {{ boxscore.home_line.TEAM_NICKNAME }}</h2>
+                    <p class="text-xs text-white/50">{{ boxscore.home_line.TEAM_WINS_LOSSES }}</p>
+                    <p class="text-3xl md:text-4xl font-black text-white">{{ boxscore.home_line.PTS|fmt_int }}</p>
+                </div>
+            </div>
+
+            <div class="mt-8 flex justify-center">
+                <table class="text-sm border-separate border-spacing-0">
+                    <thead>
+                        <tr>
+                            <th class="w-10 text-center text-white/50 text-xs font-semibold py-1"></th>
+                            <th class="w-10 text-center text-white/30 text-xs font-semibold py-1">Q1</th>
+                            <th class="w-10 text-center text-white/30 text-xs font-semibold py-1">Q2</th>
+                            <th class="w-10 text-center text-white/30 text-xs font-semibold py-1">Q3</th>
+                            <th class="w-10 text-center text-white/30 text-xs font-semibold py-1">Q4</th>
+                            <th class="w-10 text-center text-white/30 text-xs font-semibold py-1">T</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        <tr>
+                            <td class="text-center text-white/70 text-xs font-semibold py-1.5">{{ boxscore.visitor_line.TEAM_ABBREVIATION }}</td>
+                            <td class="text-center text-white font-semibold py-1.5">{{ boxscore.visitor_line.PTS_QTR1|fmt_int }}</td>
+                            <td class="text-center text-white font-semibold py-1.5">{{ boxscore.visitor_line.PTS_QTR2|fmt_int }}</td>
+                            <td class="text-center text-white font-semibold py-1.5">{{ boxscore.visitor_line.PTS_QTR3|fmt_int }}</td>
+                            <td class="text-center text-white font-semibold py-1.5">{{ boxscore.visitor_line.PTS_QTR4|fmt_int }}</td>
+                            <td class="text-center text-white font-black py-1.5">{{ boxscore.visitor_line.PTS|fmt_int }}</td>
+                        </tr>
+                        <tr>
+                            <td class="text-center text-white/70 text-xs font-semibold py-1.5">{{ boxscore.home_line.TEAM_ABBREVIATION }}</td>
+                            <td class="text-center text-white font-semibold py-1.5">{{ boxscore.home_line.PTS_QTR1|fmt_int }}</td>
+                            <td class="text-center text-white font-semibold py-1.5">{{ boxscore.home_line.PTS_QTR2|fmt_int }}</td>
+                            <td class="text-center text-white font-semibold py-1.5">{{ boxscore.home_line.PTS_QTR3|fmt_int }}</td>
+                            <td class="text-center text-white font-semibold py-1.5">{{ boxscore.home_line.PTS_QTR4|fmt_int }}</td>
+                            <td class="text-center text-white font-black py-1.5">{{ boxscore.home_line.PTS|fmt_int }}</td>
+                        </tr>
+                    </tbody>
+                </table>
+            </div>
+        </div>
+    </section>
+
+    <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+
+        {% if boxscore.home_other or boxscore.visitor_other %}
+        <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-10 animate-slide-up">
+            {% if boxscore.visitor_other %}
+            <div class="bg-slate-200/50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700/50 p-5">
+                <div class="flex items-center gap-2 mb-3">
+                    <img src="https://cdn.nba.com/logos/nba/{{ boxscore.game_info.visitor_team_id }}/global/L/logo.svg" class="w-5 h-5 object-contain" onerror="this.style.display='none'">
+                    <span class="text-sm font-bold text-slate-600 dark:text-slate-300">{{ boxscore.visitor_other.TEAM_CITY }} {{ boxscore.visitor_other.TEAM_ABBREVIATION }}</span>
+                </div>
+                <div class="grid grid-cols-2 gap-2 text-sm">
+                    <div class="flex justify-between bg-slate-100/80 dark:bg-slate-700/40 rounded-lg px-3 py-2">
+                        <span class="text-slate-500 dark:text-slate-400">Pts Paint</span>
+                        <span class="font-semibold text-slate-700 dark:text-slate-200">{{ boxscore.visitor_other.PTS_PAINT|fmt_int }}</span>
+                    </div>
+                    <div class="flex justify-between bg-slate-100/80 dark:bg-slate-700/40 rounded-lg px-3 py-2">
+                        <span class="text-slate-500 dark:text-slate-400">2nd Chance</span>
+                        <span class="font-semibold text-slate-700 dark:text-slate-200">{{ boxscore.visitor_other.PTS_2ND_CHANCE|fmt_int }}</span>
+                    </div>
+                    <div class="flex justify-between bg-slate-100/80 dark:bg-slate-700/40 rounded-lg px-3 py-2">
+                        <span class="text-slate-500 dark:text-slate-400">Fast Break</span>
+                        <span class="font-semibold text-slate-700 dark:text-slate-200">{{ boxscore.visitor_other.PTS_FB|fmt_int }}</span>
+                    </div>
+                    <div class="flex justify-between bg-slate-100/80 dark:bg-slate-700/40 rounded-lg px-3 py-2">
+                        <span class="text-slate-500 dark:text-slate-400">Pts Off TO</span>
+                        <span class="font-semibold text-slate-700 dark:text-slate-200">{{ boxscore.visitor_other.PTS_OFF_TO|fmt_int }}</span>
+                    </div>
+                    <div class="flex justify-between bg-slate-100/80 dark:bg-slate-700/40 rounded-lg px-3 py-2">
+                        <span class="text-slate-500 dark:text-slate-400">Largest Lead</span>
+                        <span class="font-semibold text-slate-700 dark:text-slate-200">{{ boxscore.visitor_other.LARGEST_LEAD|fmt_int }}</span>
+                    </div>
+                    <div class="flex justify-between bg-slate-100/80 dark:bg-slate-700/40 rounded-lg px-3 py-2">
+                        <span class="text-slate-500 dark:text-slate-400">Turnovers</span>
+                        <span class="font-semibold text-slate-700 dark:text-slate-200">{{ boxscore.visitor_other.TEAM_TURNOVERS|fmt_int }}</span>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+
+            {% if boxscore.home_other %}
+            <div class="bg-slate-200/50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700/50 p-5">
+                <div class="flex items-center gap-2 mb-3">
+                    <img src="https://cdn.nba.com/logos/nba/{{ boxscore.game_info.home_team_id }}/global/L/logo.svg" class="w-5 h-5 object-contain" onerror="this.style.display='none'">
+                    <span class="text-sm font-bold text-slate-600 dark:text-slate-300">{{ boxscore.home_other.TEAM_CITY }} {{ boxscore.home_other.TEAM_ABBREVIATION }}</span>
+                </div>
+                <div class="grid grid-cols-2 gap-2 text-sm">
+                    <div class="flex justify-between bg-slate-100/80 dark:bg-slate-700/40 rounded-lg px-3 py-2">
+                        <span class="text-slate-500 dark:text-slate-400">Pts Paint</span>
+                        <span class="font-semibold text-slate-700 dark:text-slate-200">{{ boxscore.home_other.PTS_PAINT|fmt_int }}</span>
+                    </div>
+                    <div class="flex justify-between bg-slate-100/80 dark:bg-slate-700/40 rounded-lg px-3 py-2">
+                        <span class="text-slate-500 dark:text-slate-400">2nd Chance</span>
+                        <span class="font-semibold text-slate-700 dark:text-slate-200">{{ boxscore.home_other.PTS_2ND_CHANCE|fmt_int }}</span>
+                    </div>
+                    <div class="flex justify-between bg-slate-100/80 dark:bg-slate-700/40 rounded-lg px-3 py-2">
+                        <span class="text-slate-500 dark:text-slate-400">Fast Break</span>
+                        <span class="font-semibold text-slate-700 dark:text-slate-200">{{ boxscore.home_other.PTS_FB|fmt_int }}</span>
+                    </div>
+                    <div class="flex justify-between bg-slate-100/80 dark:bg-slate-700/40 rounded-lg px-3 py-2">
+                        <span class="text-slate-500 dark:text-slate-400">Pts Off TO</span>
+                        <span class="font-semibold text-slate-700 dark:text-slate-200">{{ boxscore.home_other.PTS_OFF_TO|fmt_int }}</span>
+                    </div>
+                    <div class="flex justify-between bg-slate-100/80 dark:bg-slate-700/40 rounded-lg px-3 py-2">
+                        <span class="text-slate-500 dark:text-slate-400">Largest Lead</span>
+                        <span class="font-semibold text-slate-700 dark:text-slate-200">{{ boxscore.home_other.LARGEST_LEAD|fmt_int }}</span>
+                    </div>
+                    <div class="flex justify-between bg-slate-100/80 dark:bg-slate-700/40 rounded-lg px-3 py-2">
+                        <span class="text-slate-500 dark:text-slate-400">Turnovers</span>
+                        <span class="font-semibold text-slate-700 dark:text-slate-200">{{ boxscore.home_other.TEAM_TURNOVERS|fmt_int }}</span>
+                    </div>
+                </div>
+            </div>
+            {% endif %}
+        </div>
+        {% endif %}
+
+        <div class="grid grid-cols-1 xl:grid-cols-2 gap-6">
+            {% include "stats/_team_boxscore.html" with players=boxscore.visitor_players team_totals=boxscore.visitor_team_totals team_label=boxscore.visitor_line.TEAM_ABBREVIATION team_id=boxscore.game_info.visitor_team_id side="visitor" %}
+            {% include "stats/_team_boxscore.html" with players=boxscore.home_players team_totals=boxscore.home_team_totals team_label=boxscore.home_line.TEAM_ABBREVIATION team_id=boxscore.game_info.home_team_id side="home" %}
+        </div>
+
+        {% if boxscore.officials %}
+        <div class="mt-8 animate-slide-up">
+            <h3 class="text-sm font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-3">Árbitros</h3>
+            <div class="flex flex-wrap gap-2">
+                {% for off in boxscore.officials %}
+                <span class="px-3 py-1.5 rounded-lg text-sm text-slate-600 dark:text-slate-400 bg-slate-200/50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/50">
+                    {{ off.FIRST_NAME }} {{ off.LAST_NAME }}
+                </span>
+                {% endfor %}
+            </div>
+        </div>
+        {% endif %}
+
+    </div>
+</div>
+{% endblock %}
