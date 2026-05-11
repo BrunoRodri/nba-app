@@ -223,7 +223,17 @@ def get_team_season_games(team_id, season):
         if df.empty:
             return []
         # Exclude preseason (SEASON_ID starting with '1')
-        df = df[~df['SEASON_ID'].str.startswith('1')]
+        df = df[~df['SEASON_ID'].str.startswith('1')].copy()
+        
+        # Calculate opponent points if PTS and PLUS_MINUS are available
+        if 'PTS' in df.columns and 'PLUS_MINUS' in df.columns:
+            # Drop rows with missing PTS or PLUS_MINUS to avoid errors, or fill them
+            df['PLUS_MINUS'] = df['PLUS_MINUS'].fillna(0)
+            df['PTS'] = df['PTS'].fillna(0)
+            df['OPP_PTS'] = (df['PTS'] - df['PLUS_MINUS']).astype(int)
+        else:
+            df['OPP_PTS'] = 0
+
         return df.to_dict('records')
     except Exception as e:
         logger.error(f"Error fetching team games for {team_id} season {season}: {e}")

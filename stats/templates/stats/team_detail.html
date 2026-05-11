@@ -195,7 +195,10 @@
                     </thead>
                     <tbody>
                         {% for h in history %}
-                        <tr data-url="{% url 'stats:team_season_games' team_id h.YEAR %}" onclick="window.location.href=this.dataset.url" class="border-b border-slate-100 dark:border-slate-700/50 last:border-0 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors group" style="cursor: pointer;">
+                        <tr data-url="{% url 'stats:team_season_games' team_id h.YEAR %}" 
+                            onclick="window.location.href=this.dataset.url" 
+                            class="border-b border-slate-100 dark:border-slate-700/50 last:border-0 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors group history-row {% if forloop.counter > 10 %}hidden-row{% endif %}" 
+                            style="cursor: pointer; {% if forloop.counter > 10 %}display: none;{% endif %}">
                             <td class="px-4 py-3 font-semibold whitespace-nowrap text-nba-blue dark:text-nba-blue-light group-hover:underline">
                                 {{ h.YEAR }}
                             </td>
@@ -207,6 +210,18 @@
                     </tbody>
                 </table>
             </div>
+            
+            {% if history|length > 10 %}
+            <div class="mt-6 flex justify-center text-center">
+                <button id="load-more-history" onclick="
+                    document.querySelectorAll('.history-row.hidden-row').forEach(el => el.style.display = 'table-row');
+                    this.style.display = 'none';
+                " class="px-6 py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl font-medium transition-colors border border-slate-200 dark:border-slate-700 text-sm">
+                    Carregar Todas as Temporadas
+                </button>
+            </div>
+            {% endif %}
+            
         </div>
         {% endif %}
 
