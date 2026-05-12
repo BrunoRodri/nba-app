@@ -4,6 +4,7 @@ All nba_api calls are centralized here with error handling and timeouts.
 """
 import logging
 from datetime import datetime
+from django.core.cache import cache
 
 from nba_api.stats.static import players as static_players
 from nba_api.stats.static import teams as static_teams
@@ -29,6 +30,13 @@ logger = logging.getLogger(__name__)
 
 # Timeout for all NBA API requests (seconds)
 API_TIMEOUT = 15
+
+# Cache TTLs (seconds)
+CACHE_TTL_TEAM_INFO = 60 * 60 * 24 # 24 hours
+CACHE_TTL_TEAM_ROSTER = 60 * 60 * 6 # 6 hours
+CACHE_TTL_TEAM_RECORD = 60 * 60 * 1 # 1 hour
+CACHE_TTL_PLAYER_INFO = 60 * 60 * 24 # 24 hours
+CACHE_TTL_STANDINGS = 60 * 60 * 1 # 1 hour
 
 
 def get_current_season():
@@ -57,7 +65,12 @@ def search_teams(query):
 # ─── Player endpoints ────────────────────────────────────────────────
 
 def get_player_info(player_id):
-    """Fetch player biographical info from CommonPlayerInfo endpoint."""
+    """Fetch player biographical info from CommonPlayerInfo endpoint (Cached)."""
+    cache_key = f"player_info_{player_id}"
+    cached_data = cache.get(cache_key)
+    if cached_data:
+        return cached_data
+
     try:
         info = commonplayerinfo.CommonPlayerInfo(
             player_id=player_id,
@@ -71,6 +84,7 @@ def get_player_info(player_id):
         # Enrich with headshot URL
         row['HEADSHOT_URL'] = get_player_headshot_url(player_id)
 
+        cache.set(cache_key, row, CACHE_TTL_PLAYER_INFO)
         return row
     except Exception as e:
         logger.error(f"Error fetching player info for {player_id}: {e}")
@@ -121,7 +135,12 @@ def get_player_game_log(player_id, season=None, last_n=10):
 # ─── Team endpoints ──────────────────────────────────────────────────
 
 def get_team_info(team_id):
-    """Fetch team background info from TeamDetails endpoint."""
+    """Fetch team background info from TeamDetails endpoint (Cached)."""
+    cache_key = f"team_info_{team_id}"
+    cached_data = cache.get(cache_key)
+    if cached_data:
+        return cached_data
+
     try:
         details = teamdetails.TeamDetails(
             team_id=team_id,
@@ -132,6 +151,8 @@ def get_team_info(team_id):
             return None
         row = bg.iloc[0].to_dict()
         row['LOGO_URL'] = get_team_logo_url(team_id)
+        
+        cache.set(cache_key, row, CACHE_TTL_TEAM_INFO)
         return row
     except Exception as e:
         logger.error(f"Error fetching team info for {team_id}: {e}")
@@ -139,9 +160,15 @@ def get_team_info(team_id):
 
 
 def get_team_roster(team_id, season=None):
-    """Fetch current team roster."""
+    """Fetch current team roster (Cached)."""
     if season is None:
         season = get_current_season()
+    
+    cache_key = f"team_roster_{team_id}_{season}"
+    cached_data = cache.get(cache_key)
+    if cached_data:
+        return cached_data
+
     try:
         roster = commonteamroster.CommonTeamRoster(
             team_id=team_id,
@@ -157,6 +184,8 @@ def get_team_roster(team_id, season=None):
             pid = player.get('PLAYER_ID')
             if pid:
                 player['HEADSHOT_URL'] = get_player_headshot_url(pid)
+        
+        cache.set(cache_key, records, CACHE_TTL_TEAM_ROSTER)
         return records
     except Exception as e:
         logger.error(f"Error fetching roster for team {team_id}: {e}")
@@ -164,9 +193,15 @@ def get_team_roster(team_id, season=None):
 
 
 def get_team_season_record(team_id, season=None):
-    """Fetch team W-L record using LeagueGameFinder."""
+    """Fetch team W-L record using LeagueGameFinder (Cached)."""
     if season is None:
         season = get_current_season()
+    
+    cache_key = f"team_record_{team_id}_{season}"
+    cached_data = cache.get(cache_key)
+    if cached_data:
+        return cached_data
+
     try:
         finder = leaguegamefinder.LeagueGameFinder(
             team_id_nullable=team_id,
@@ -192,12 +227,15 @@ def get_team_season_record(team_id, season=None):
             games_df['OPP_PTS'] = (games_df['PTS'] - games_df['PLUS_MINUS']).astype(int)
         recent_games = games_df.head(10).to_dict('records')
 
-        return {
+        result = {
             'wins': wins,
             'losses': losses,
             'win_pct': win_pct,
             'games': recent_games,
         }
+        
+        cache.set(cache_key, result, CACHE_TTL_TEAM_RECORD)
+        return result
     except Exception as e:
         logger.error(f"Error fetching season record for team {team_id}: {e}")
         return {'wins': 0, 'losses': 0, 'games': [], 'win_pct': 0}
@@ -443,9 +481,15 @@ def get_game_boxscore(game_id):
 
 
 def get_league_standings(season=None):
-    """Fetch and separate standings by conference."""
+    """Fetch and separate standings by conference (Cached)."""
     if season is None:
         season = get_current_season()
+        
+    cache_key = f"league_standings_{season}"
+    cached_data = cache.get(cache_key)
+    if cached_data:
+        return cached_data
+
     try:
         standings_data = leaguestandingsv3.LeagueStandingsV3(
             season=season,
@@ -466,10 +510,13 @@ def get_league_standings(season=None):
         east.sort(key=lambda x: x['WinPCT'], reverse=True)
         west.sort(key=lambda x: x['WinPCT'], reverse=True)
         
-        return {
+        result = {
             'East': east,
             'West': west
         }
+        
+        cache.set(cache_key, result, CACHE_TTL_STANDINGS)
+        return result
     except Exception as e:
         logger.error(f"Error fetching standings: {e}")
         return None
