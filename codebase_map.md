@@ -6,8 +6,9 @@ Este documento serve como um mapa da base de código do **NBA Stats Explorer**. 
 - **Backend:** Python 3.13, Django 6.0.5
 - **Frontend:** HTML5, Tailwind CSS (via `django-tailwind`), Vanilla JavaScript
 - **API Externa:** `nba_api` (biblioteca oficial da comunidade para acessar a API da NBA)
-- **Banco de Dados:** SQLite (`db.sqlite3` - Usado para modelos básicos e cache local de entidades como Teams/Players).
-- **Estilo:** Dark/Light Mode, Design Responsivo, Carregamento Assíncrono com Skeleton Screens.
+- **Banco de Dados:** PostgreSQL (Docker) / SQLite (Local dev fallback)
+- **Infraestrutura:** Docker & Docker Compose
+- **Estilo:** Dark Mode Nativo, Design Responsivo, Gradientes Dinâmicos por Time.
 
 ---
 
@@ -18,27 +19,14 @@ O projeto segue a estrutura padrão do Django, subdividido principalmente em `nb
 ```text
 nba/
 ├── nba_explorer/           # Configurações globais do Django
-│   ├── settings.py         # Configs, DB, Tailwind apps, etc.
-│   └── urls.py             # Roteamento global
-│
-├── static/                 # Arquivos estáticos globais (Pós-build do Tailwind)
-│   ├── css/
-│   │   └── main.css        # CSS Customizado + utilitários do Tailwind
-│   └── js/
-│       └── app.js          # Lógica Frontend (Dark mode, Busca, Autocomplete, Animações)
-│
+├── static/                 # Arquivos estáticos (CSS/JS)
 ├── stats/                  # 🏀 App Principal de Estatísticas
-│   ├── models.py           # Modelos de banco de dados (Player, Team - cache local)
-│   ├── services.py         # Camada de Serviço (Toda a lógica de requisição à `nba_api`)
-│   ├── views.py            # Controladores Django (Renderizam os templates HTML)
-│   ├── urls.py             # Rotas específicas do app de stats
-│   ├── templatetags/       # Filtros customizados do Django (ex: formatações de altura/peso)
-│   └── templates/stats/    # Templates HTML (Frontend)
-│
-├── theme/                  # App de integração do Tailwind CSS
-├── db.sqlite3              # Banco de dados local
-├── manage.py               # Entrypoint do Django
-└── requirements.txt        # Dependências Python
+├── theme/                  # App do Tailwind CSS
+├── Dockerfile              # Definição da imagem da aplicação
+├── docker-compose.yml      # Orquestração (App + PostgreSQL)
+├── .env.example            # Modelo de variáveis de ambiente
+├── requirements.txt        # Dependências Python
+└── manage.py               # Entrypoint do Django
 ```
 
 ---
@@ -73,7 +61,7 @@ Lidam com a requisição do usuário. *Padrão de UX Moderno:* implementam retor
 ### 4. Frontend (`static/js/app.js`)
 *   **Autocomplete (`initAutocomplete`):** Intercepta o input de busca, faz fetch em `/api/search/` e desenha um dropdown com resultados e headshots instantaneamente.
 *   **Animações (`initAnimations`):** Implementa um `IntersectionObserver` que adiciona efeitos de *fade-in* e *slide-up* conforme o usuário faz o scroll pela página.
-*   **Dark Mode:** Salva a preferência no `localStorage`.
+*   **Design:** O tema claro foi removido em favor de um design premium permanentemente escuro.
 
 ---
 

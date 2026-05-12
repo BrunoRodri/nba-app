@@ -8,11 +8,10 @@
   <strong>Explore estatísticas detalhadas de jogadores e times da NBA em tempo real.</strong>
 </p>
 
-<p align="center">
   <img src="https://img.shields.io/badge/django-5.1+-092E20?style=for-the-badge&logo=django&logoColor=white" alt="Django" />
   <img src="https://img.shields.io/badge/tailwind-css-06B6D4?style=for-the-badge&logo=tailwindcss&logoColor=white" alt="Tailwind" />
-  <img src="https://img.shields.io/badge/nba_api-latest-1D428A?style=for-the-badge" alt="NBA API" />
-  <img src="https://img.shields.io/badge/sqlite-003B57?style=for-the-badge&logo=sqlite&logoColor=white" alt="SQLite" />
+  <img src="https://img.shields.io/badge/docker-%230db7ed.svg?style=for-the-badge&logo=docker&logoColor=white" alt="Docker" />
+  <img src="https://img.shields.io/badge/postgresql-4169E1?style=for-the-badge&logo=postgresql&logoColor=white" alt="PostgreSQL" />
 </p>
 
 <p align="center">
@@ -28,7 +27,8 @@
 - 🧑‍💼 **Perfil de jogador** — foto, bio, estatísticas por temporada e médias de carreira
 - 🏟️ **Página do time** — elenco completo, recorde W-L, últimos jogos e histórico ano a ano
 - 📊 **Game log** — todos os jogos de uma temporada (regular + playoffs) com placar
-- 🌗 **Dark mode** — tema claro/escuro com persistência no navegador
+- 🎨 **Estilo Dinâmico** — perfis de jogadores com gradientes baseados nas cores do time atual
+- 🌑 **Tema Escuro Nativo** — design premium focado em modo escuro permanente
 - 📱 **Responsivo** — interface adaptada para desktop, tablet e mobile
 - ⚡ **Cache local** — buscas instantâneas com SQLite + dados em tempo real da API da NBA
 
@@ -41,32 +41,41 @@
 - Python 3.10+
 - Node.js 18+ (para compilar o Tailwind CSS)
 
-### Instalação
+### Instalação com Docker (Recomendado)
+
+A maneira mais rápida de rodar o projeto é usando Docker:
 
 ```bash
 # 1. Clone o repositório
 git clone https://github.com/seu-usuario/nba-stats-explorer.git
 cd nba-stats-explorer
 
-# 2. Crie e ative o ambiente virtual
-python -m venv venv
-venv\Scripts\activate     # Windows
-# source venv/bin/activate  # Linux/Mac
+# 2. Crie o arquivo .env
+cp .env.example .env
 
-# 3. Instale as dependências
+# 3. Suba os containers
+docker compose up --build
+```
+
+Acesse **http://localhost:8000**. O banco PostgreSQL será configurado automaticamente.
+
+### Instalação Manual (Desenvolvimento)
+
+Se preferir rodar sem Docker:
+
+```bash
+# 1. Crie o ambiente virtual e instale dependências
+python -m venv venv
+source venv/bin/activate
 pip install -r requirements.txt
 
-# 4. Instale o Tailwind CSS
-python manage.py tailwind install
-
-# 5. Execute as migrações
+# 2. Configure o banco SQLite
 python manage.py migrate
-
-# 6. Popule o cache local com jogadores e times da NBA
 python manage.py populate_cache
 
-# 7. Compile os assets do Tailwind (modo dev com hot-reload)
+# 3. Rodar Tailwind e Django em terminais separados
 python manage.py tailwind start
+python manage.py runserver
 ```
 
 ### Rodando o projeto
@@ -126,8 +135,9 @@ nba/
 | [Django](https://www.djangoproject.com/) 5.1+ | Framework web        |
 | [nba_api](https://github.com/swar/nba_api) | Dados oficiais da NBA em tempo real |
 | [Tailwind CSS](https://tailwindcss.com/) + django-tailwind | Estilização moderna com dark mode |
-| **SQLite**               | Cache local de jogadores e times |
-| **Vanilla JS**           | Autocomplete, dark mode toggle, animações |
+| [PostgreSQL](https://www.postgresql.org/) | Banco de dados principal (via Docker) |
+| [Docker](https://www.docker.com/) | Containerização e infraestrutura |
+| [Vanilla JS](https://www.javascript.com/) | Autocomplete e animações |
 
 ---
 
