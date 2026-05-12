@@ -9,20 +9,26 @@
     {% if api_error %}
     <!-- API Error Screen -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center animate-fade-in">
-        <div class="w-20 h-20 mx-auto mb-6 rounded-2xl bg-red-50 dark:bg-red-900/20 flex items-center justify-center border border-red-100 dark:border-red-800">
+        <div
+            class="w-20 h-20 mx-auto mb-6 rounded-2xl bg-red-50 dark:bg-red-900/20 flex items-center justify-center border border-red-100 dark:border-red-800">
             <svg class="w-10 h-10 text-red-500 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
             </svg>
         </div>
         <h2 class="text-xl font-semibold text-slate-800 dark:text-slate-200 mb-2">Erro de Conexão com a NBA</h2>
-        <p class="text-slate-500 dark:text-slate-400 mb-8 max-w-lg mx-auto">A API oficial da NBA demorou muito para responder ou enviou dados incompletos. Isso é comum quando há muitos acessos simultâneos.</p>
+        <p class="text-slate-500 dark:text-slate-400 mb-8 max-w-lg mx-auto">A API oficial da NBA demorou muito para
+            responder ou enviou dados incompletos. Isso é comum quando há muitos acessos simultâneos.</p>
         <div class="flex items-center justify-center gap-4">
-            <button onclick="window.history.back()" class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl font-medium transition-colors border border-slate-200 dark:border-slate-700">
+            <button onclick="window.history.back()"
+                class="px-5 py-2.5 bg-slate-100 hover:bg-slate-200 dark:bg-slate-800 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl font-medium transition-colors border border-slate-200 dark:border-slate-700">
                 Voltar
             </button>
-            <button onclick="window.location.reload()" class="inline-flex items-center gap-2 px-5 py-2.5 bg-nba-blue hover:bg-nba-blue-dark text-white rounded-xl font-medium transition-colors shadow-sm shadow-nba-blue/30">
+            <button onclick="window.location.reload()"
+                class="inline-flex items-center gap-2 px-5 py-2.5 bg-nba-blue hover:bg-nba-blue-dark text-white rounded-xl font-medium transition-colors shadow-sm shadow-nba-blue/30">
                 <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15"/>
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M4 4v5h.582m15.356 2A8.001 8.001 0 004.582 9m0 0H9m11 11v-5h-.581m0 0a8.003 8.003 0 01-15.357-2m15.357 2H15" />
                 </svg>
                 Tentar Novamente
             </button>
@@ -31,7 +37,8 @@
 
     {% elif team %}
     <!-- ═══ Team Hero ═══ -->
-    <section class="relative overflow-hidden" style="background: linear-gradient(135deg, {{ team_colors.primary }} 0%, {{ team_colors.secondary }} 50%, {{ team_colors.accent|default:team_colors.primary }} 100%);">
+    <section class="relative overflow-hidden"
+        style="background: linear-gradient(135deg, {{ team_colors.primary }} 0%, {{ team_colors.secondary }} 50%, {{ team_colors.accent|default:team_colors.primary }} 100%);">
         <!-- Decorative -->
         <div class="absolute inset-0 opacity-30">
             <div class="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl"></div>
@@ -42,13 +49,11 @@
             <div class="flex flex-col md:flex-row items-center gap-8">
                 <!-- Team logo -->
                 <div class="w-36 h-36 md:w-48 md:h-48 flex items-center justify-center flex-shrink-0 animate-fade-in">
-                    <img
-                        src="{{ team.LOGO_URL }}"
-                        alt="{{ team.CITY }} {{ team.NICKNAME }}"
+                    <img src="{{ team.LOGO_URL }}" alt="{{ team.CITY }} {{ team.NICKNAME }}"
                         class="w-full h-full object-contain drop-shadow-2xl"
-                        onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';"
-                    >
-                    <div class="w-full h-full rounded-2xl bg-white/10 items-center justify-center text-5xl font-black text-white/40 hidden">
+                        onerror="this.style.display='none'; this.nextElementSibling.style.display='flex';">
+                    <div
+                        class="w-full h-full rounded-2xl bg-white/10 items-center justify-center text-5xl font-black text-white/40 hidden">
                         {{ team.ABBREVIATION }}
                     </div>
                 </div>
@@ -65,7 +70,8 @@
                         {% if team.YEARFOUNDED %}
                         <span class="flex items-center gap-1.5">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M8 7V3m8 4V3m-9 8h10M5 21h14a2 2 0 002-2V7a2 2 0 00-2-2H5a2 2 0 00-2 2v12a2 2 0 002 2z" />
                             </svg>
                             Fundado em {{ team.YEARFOUNDED }}
                         </span>
@@ -73,8 +79,10 @@
                         {% if team.ARENA %}
                         <span class="flex items-center gap-1.5">
                             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z"/>
-                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M15 11a3 3 0 11-6 0 3 3 0 016 0z"/>
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M17.657 16.657L13.414 20.9a1.998 1.998 0 01-2.827 0l-4.244-4.243a8 8 0 1111.314 0z" />
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                                    d="M15 11a3 3 0 11-6 0 3 3 0 016 0z" />
                             </svg>
                             {{ team.ARENA }}
                         </span>
@@ -84,15 +92,18 @@
                     <!-- Season record -->
                     {% if record %}
                     <div class="grid grid-cols-3 gap-4 mt-8 max-w-sm mx-auto md:mx-0">
-                        <div class="bg-slate-900/60 backdrop-blur-md border border-slate-700/50 rounded-xl px-4 py-3 text-center shadow-lg">
+                        <div
+                            class="bg-slate-900/60 backdrop-blur-md border border-slate-700/50 rounded-xl px-4 py-3 text-center shadow-lg">
                             <p class="text-xs font-semibold text-slate-100 uppercase tracking-wider mb-1">Vitórias</p>
                             <p class="text-2xl font-bold text-emerald-400 drop-shadow-md">{{ record.wins }}</p>
                         </div>
-                        <div class="bg-slate-900/60 backdrop-blur-md border border-slate-700/50 rounded-xl px-4 py-3 text-center shadow-lg">
+                        <div
+                            class="bg-slate-900/60 backdrop-blur-md border border-slate-700/50 rounded-xl px-4 py-3 text-center shadow-lg">
                             <p class="text-xs font-semibold text-slate-100 uppercase tracking-wider mb-1">Derrotas</p>
                             <p class="text-2xl font-bold text-red-400 drop-shadow-md">{{ record.losses }}</p>
                         </div>
-                        <div class="bg-slate-900/60 backdrop-blur-md border border-slate-700/50 rounded-xl px-4 py-3 text-center shadow-lg">
+                        <div
+                            class="bg-slate-900/60 backdrop-blur-md border border-slate-700/50 rounded-xl px-4 py-3 text-center shadow-lg">
                             <p class="text-xs font-semibold text-slate-100 uppercase tracking-wider mb-1">Win%</p>
                             <p class="text-2xl font-bold text-amber-400 drop-shadow-md">{{ record.win_pct }}</p>
                         </div>
@@ -110,28 +121,28 @@
         {% if roster %}
         <div class="mb-10 animate-slide-up">
             <h2 class="text-xl font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
-                <svg class="w-5 h-5 text-nba-blue dark:text-nba-blue-light" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z"/>
+                <svg class="w-5 h-5 text-nba-blue dark:text-nba-blue-light" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M17 20h5v-2a3 3 0 00-5.356-1.857M17 20H7m10 0v-2c0-.656-.126-1.283-.356-1.857M7 20H2v-2a3 3 0 015.356-1.857M7 20v-2c0-.656.126-1.283.356-1.857m0 0a5.002 5.002 0 019.288 0M15 7a3 3 0 11-6 0 3 3 0 016 0zm6 3a2 2 0 11-4 0 2 2 0 014 0zM7 10a2 2 0 11-4 0 2 2 0 014 0z" />
                 </svg>
                 Elenco ({{ season }})
             </h2>
             <div class="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-3 xl:grid-cols-4 gap-3">
                 {% for p in roster %}
                 <a href="{% url 'stats:player_detail' p.PLAYER_ID %}"
-                   class="card-hover group bg-white dark:bg-slate-800 rounded-xl p-4 flex items-center gap-3 border border-slate-100 dark:border-slate-700 shadow-sm"
-                   id="roster-player-{{ p.PLAYER_ID }}">
+                    class="card-hover group bg-white dark:bg-slate-800 rounded-xl p-4 flex items-center gap-3 border border-slate-100 dark:border-slate-700 shadow-sm"
+                    id="roster-player-{{ p.PLAYER_ID }}">
                     <!-- Headshot -->
-                    <div class="w-12 h-12 rounded-lg overflow-hidden bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-600 flex-shrink-0">
-                        <img
-                            src="{{ p.HEADSHOT_URL }}"
-                            alt="{{ p.PLAYER }}"
-                            class="w-full h-full object-cover"
-                            onerror="this.style.display='none';"
-                        >
+                    <div
+                        class="w-12 h-12 rounded-lg overflow-hidden bg-gradient-to-br from-slate-100 to-slate-200 dark:from-slate-700 dark:to-slate-600 flex-shrink-0">
+                        <img src="{{ p.HEADSHOT_URL }}" alt="{{ p.PLAYER }}" class="w-full h-full object-cover"
+                            onerror="this.style.display='none';">
                     </div>
                     <!-- Info -->
                     <div class="flex-1 min-w-0">
-                        <p class="font-semibold text-sm text-slate-700 dark:text-slate-200 truncate group-hover:text-nba-blue dark:group-hover:text-nba-blue-light transition-colors">
+                        <p
+                            class="font-semibold text-sm text-slate-700 dark:text-slate-200 truncate group-hover:text-nba-blue dark:group-hover:text-nba-blue-light transition-colors">
                             {{ p.PLAYER }}
                         </p>
                         <div class="flex items-center gap-2 text-xs text-slate-400 dark:text-slate-500">
@@ -144,8 +155,9 @@
                         </div>
                     </div>
                     <!-- Arrow -->
-                    <svg class="w-4 h-4 text-slate-300 dark:text-slate-600 group-hover:text-nba-blue transition-colors flex-shrink-0" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7"/>
+                    <svg class="w-4 h-4 text-slate-300 dark:text-slate-600 group-hover:text-nba-blue transition-colors flex-shrink-0"
+                        fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                        <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 5l7 7-7 7" />
                     </svg>
                 </a>
                 {% endfor %}
@@ -157,19 +169,25 @@
         {% if record.games %}
         <div class="animate-slide-up delay-200">
             <h2 class="text-xl font-bold text-slate-800 dark:text-white mb-4 flex items-center gap-2">
-                <svg class="w-5 h-5 text-nba-red dark:text-nba-red-light" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+                <svg class="w-5 h-5 text-nba-red dark:text-nba-red-light" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 Jogos Recentes ({{ season }})
             </h2>
-            <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 overflow-x-auto shadow-sm">
+            <div
+                class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 overflow-x-auto shadow-sm">
                 <table class="stats-table w-full text-sm">
                     <thead>
                         <tr class="text-left border-b border-slate-200 dark:border-slate-700">
-                            <th class="px-4 py-3 font-semibold text-slate-500 dark:text-slate-400 whitespace-nowrap">Data</th>
-                            <th class="px-4 py-3 font-semibold text-slate-500 dark:text-slate-400 whitespace-nowrap">Adversário</th>
+                            <th class="px-4 py-3 font-semibold text-slate-500 dark:text-slate-400 whitespace-nowrap">
+                                Data</th>
+                            <th class="px-4 py-3 font-semibold text-slate-500 dark:text-slate-400 whitespace-nowrap">
+                                Adversário</th>
                             <th class="px-4 py-3 font-semibold text-slate-500 dark:text-slate-400 text-center">Res.</th>
-                            <th class="px-4 py-3 font-semibold text-nba-blue dark:text-nba-blue-light text-center">PTS</th>
+                            <th class="px-4 py-3 font-semibold text-nba-blue dark:text-nba-blue-light text-center">PTS
+                            </th>
                             <th class="px-4 py-3 font-semibold text-slate-500 dark:text-slate-400 text-center">REB</th>
                             <th class="px-4 py-3 font-semibold text-slate-500 dark:text-slate-400 text-center">AST</th>
                         </tr>
@@ -178,13 +196,15 @@
                         {% for g in record.games %}
                         <tr class="border-b border-slate-100 dark:border-slate-700/50 last:border-0 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors cursor-pointer"
                             onclick="window.location.href='{% url 'stats:game_detail' g.GAME_ID %}'">
-                            <td class="px-4 py-3 text-slate-600 dark:text-slate-300 whitespace-nowrap">{{ g.GAME_DATE }}</td>
+                            <td class="px-4 py-3 text-slate-600 dark:text-slate-300 whitespace-nowrap">{{ g.GAME_DATE|format_date }}</td>
                             <td class="px-4 py-3 font-medium text-slate-700 dark:text-slate-200 whitespace-nowrap">{{ g.MATCHUP }} <span class="text-xs text-slate-400 dark:text-slate-500 ml-1">({{ g.PTS }} - {{ g.OPP_PTS }})</span></td>
                             <td class="px-4 py-3 text-center">
                                 {% if g.WL == "W" %}
-                                <span class="px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400">W</span>
+                                <span
+                                    class="px-2 py-0.5 rounded-full text-xs font-semibold bg-emerald-100 dark:bg-emerald-900/30 text-emerald-700 dark:text-emerald-400">W</span>
                                 {% else %}
-                                <span class="px-2 py-0.5 rounded-full text-xs font-semibold bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400">L</span>
+                                <span
+                                    class="px-2 py-0.5 rounded-full text-xs font-semibold bg-red-100 dark:bg-red-900/30 text-red-700 dark:text-red-400">L</span>
                                 {% endif %}
                             </td>
                             <td class="px-4 py-3 text-center font-semibold text-nba-blue dark:text-nba-blue-light">{{ g.PTS }}</td>
@@ -200,30 +220,39 @@
 
         <!-- Histórico da Franquia -->
         {% if history %}
-        <div class="animate-slide-up delay-300" style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid rgba(148, 163, 184, 0.2);">
-            <h2 class="text-xl font-bold text-slate-800 dark:text-white flex items-center gap-2" style="margin-bottom: 1.5rem;">
-                <svg class="w-5 h-5 text-nba-gold dark:text-nba-gold-light" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z"/>
+        <div class="animate-slide-up delay-300"
+            style="margin-top: 3rem; padding-top: 2rem; border-top: 1px solid rgba(148, 163, 184, 0.2);">
+            <h2 class="text-xl font-bold text-slate-800 dark:text-white flex items-center gap-2"
+                style="margin-bottom: 1.5rem;">
+                <svg class="w-5 h-5 text-nba-gold dark:text-nba-gold-light" fill="none" stroke="currentColor"
+                    viewBox="0 0 24 24">
+                    <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                        d="M12 8v4l3 3m6-3a9 9 0 11-18 0 9 9 0 0118 0z" />
                 </svg>
                 Histórico da Franquia
             </h2>
-            <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 overflow-x-auto shadow-sm max-h-96 relative">
+            <div
+                class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 overflow-x-auto shadow-sm max-h-96 relative">
                 <table class="stats-table w-full text-sm">
                     <thead class="sticky top-0 bg-white dark:bg-slate-800 z-10">
                         <tr class="text-left border-b border-slate-200 dark:border-slate-700">
-                            <th class="px-4 py-3 font-semibold text-slate-500 dark:text-slate-400 whitespace-nowrap">Temporada</th>
-                            <th class="px-4 py-3 font-semibold text-slate-500 dark:text-slate-400 text-center">Vitórias</th>
-                            <th class="px-4 py-3 font-semibold text-slate-500 dark:text-slate-400 text-center">Derrotas</th>
+                            <th class="px-4 py-3 font-semibold text-slate-500 dark:text-slate-400 whitespace-nowrap">
+                                Temporada</th>
+                            <th class="px-4 py-3 font-semibold text-slate-500 dark:text-slate-400 text-center">Vitórias
+                            </th>
+                            <th class="px-4 py-3 font-semibold text-slate-500 dark:text-slate-400 text-center">Derrotas
+                            </th>
                             <th class="px-4 py-3 font-semibold text-slate-500 dark:text-slate-400 text-center">Win%</th>
                         </tr>
                     </thead>
                     <tbody>
                         {% for h in history %}
-                        <tr data-url="{% url 'stats:team_season_games' team_id h.YEAR %}" 
-                            onclick="window.location.href=this.dataset.url" 
-                            class="border-b border-slate-100 dark:border-slate-700/50 last:border-0 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors group history-row {% if forloop.counter > 10 %}hidden-row{% endif %}" 
+                        <tr data-url="{% url 'stats:team_season_games' team_id h.YEAR %}"
+                            onclick="window.location.href=this.dataset.url"
+                            class="border-b border-slate-100 dark:border-slate-700/50 last:border-0 hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors group history-row {% if forloop.counter > 10 %}hidden-row{% endif %}"
                             style="cursor: pointer; {% if forloop.counter > 10 %}display: none;{% endif %}">
-                            <td class="px-4 py-3 font-semibold whitespace-nowrap text-nba-blue dark:text-nba-blue-light group-hover:underline">
+                            <td
+                                class="px-4 py-3 font-semibold whitespace-nowrap text-nba-blue dark:text-nba-blue-light group-hover:underline">
                                 {{ h.YEAR }}
                             </td>
                             <td class="px-4 py-3 text-center font-medium text-emerald-600 dark:text-emerald-400">{{ h.WINS }}</td>
@@ -234,18 +263,19 @@
                     </tbody>
                 </table>
             </div>
-            
+
             {% if history|length > 10 %}
             <div class="mt-6 flex justify-center text-center">
                 <button id="load-more-history" onclick="
                     document.querySelectorAll('.history-row.hidden-row').forEach(el => el.style.display = 'table-row');
                     this.style.display = 'none';
-                " class="px-6 py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl font-medium transition-colors border border-slate-200 dark:border-slate-700 text-sm">
+                "
+                    class="px-6 py-2.5 bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 text-slate-700 dark:text-slate-300 rounded-xl font-medium transition-colors border border-slate-200 dark:border-slate-700 text-sm">
                     Carregar Todas as Temporadas
                 </button>
             </div>
             {% endif %}
-            
+
         </div>
         {% endif %}
 
@@ -255,15 +285,19 @@
     <!-- Team not found -->
     <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-20 text-center">
         <div class="w-20 h-20 mx-auto mb-6 rounded-2xl bg-slate-100 dark:bg-slate-800 flex items-center justify-center">
-            <svg class="w-10 h-10 text-slate-300 dark:text-slate-600" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+            <svg class="w-10 h-10 text-slate-300 dark:text-slate-600" fill="none" stroke="currentColor"
+                viewBox="0 0 24 24">
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2"
+                    d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z" />
             </svg>
         </div>
         <h2 class="text-xl font-semibold text-slate-600 dark:text-slate-400 mb-2">Dados do time indisponíveis</h2>
-        <p class="text-slate-400 dark:text-slate-500 mb-6">Não foi possível carregar as informações deste time. Tente novamente mais tarde.</p>
-        <a href="{% url 'stats:index' %}" class="inline-flex items-center gap-2 px-5 py-2.5 bg-nba-blue hover:bg-nba-blue-dark text-white rounded-xl font-medium transition-colors">
+        <p class="text-slate-400 dark:text-slate-500 mb-6">Não foi possível carregar as informações deste time. Tente
+            novamente mais tarde.</p>
+        <a href="{% url 'stats:index' %}"
+            class="inline-flex items-center gap-2 px-5 py-2.5 bg-nba-blue hover:bg-nba-blue-dark text-white rounded-xl font-medium transition-colors">
             <svg class="w-4 h-4" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18"/>
+                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M10 19l-7-7m0 0l7-7m-7 7h18" />
             </svg>
             Voltar ao início
         </a>

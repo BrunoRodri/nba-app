@@ -27,7 +27,7 @@
                 <div class="flex flex-col items-center gap-1 flex-shrink-0">
                     <span class="text-lg font-black text-white/20">VS</span>
                     <span class="px-3 py-0.5 rounded-full text-xs font-semibold bg-white/10 text-white/70">{{ boxscore.game_info.game_status }}</span>
-                    <span class="text-xs text-white/40">{{ boxscore.game_info.game_date }}</span>
+                    <span class="text-xs text-white/40">{{ boxscore.game_info.game_date|format_date }}</span>
                 </div>
 
                 <div class="flex flex-col items-center gap-2 text-center flex-1">

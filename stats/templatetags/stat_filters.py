@@ -47,3 +47,26 @@ def fmt_int(value):
         return str(int(float(value)))
     except (ValueError, TypeError):
         return value
+
+
+@register.filter
+def format_date(value):
+    """Convert YYYY-MM-DD to DD-MM-YYYY."""
+    if not value:
+        return ""
+    try:
+        # Check if it's already a date/datetime object
+        if hasattr(value, 'strftime'):
+            return value.strftime('%d-%m-%Y')
+        
+        # If it's a string in YYYY-MM-DD format (like '2024-04-29')
+        if isinstance(value, str) and len(value) >= 10:
+            # Handle possible 'T' in ISO format
+            date_str = value.split('T')[0]
+            parts = date_str.split('-')
+            # Strict check for YYYY-MM-DD
+            if len(parts) == 3 and len(parts[0]) == 4 and len(parts[1]) == 2 and len(parts[2]) == 2:
+                return f"{parts[2]}-{parts[1]}-{parts[0]}"
+        return value
+    except Exception:
+        return value
