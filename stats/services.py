@@ -393,6 +393,13 @@ def get_game_boxscore(game_id):
         def map_other(team_misc, team_trad):
             mst = team_misc.get('statistics', {})
             tst = team_trad.get('statistics', {})
+            is_home = team_misc.get('teamId') == home_team_id
+            
+            # Try to get biggestLead from postgameCharts (v3 location)
+            pgc = s.get('postgameCharts', {})
+            team_pgc = pgc.get('homeTeam' if is_home else 'awayTeam', {})
+            biggest_lead = team_pgc.get('statistics', {}).get('biggestLead', 0)
+            
             return {
                 'TEAM_ID': team_misc.get('teamId'),
                 'TEAM_CITY': team_misc.get('teamCity'),
@@ -401,7 +408,7 @@ def get_game_boxscore(game_id):
                 'PTS_2ND_CHANCE': mst.get('pointsSecondChance'),
                 'PTS_FB': mst.get('pointsFastBreak'),
                 'PTS_OFF_TO': mst.get('pointsOffTurnovers'),
-                'LARGEST_LEAD': s.get('homeTeam' if team_misc.get('teamId') == home_team_id else 'awayTeam', {}).get('statistics', {}).get('biggestLead', 0),
+                'LARGEST_LEAD': biggest_lead,
                 'TEAM_TURNOVERS': tst.get('turnovers'),
             }
             
