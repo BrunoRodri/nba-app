@@ -231,3 +231,45 @@ function hideDropdown(dropdown) {
         dropdown.classList.add('hidden');
     }, 200); // match transition duration
 }
+
+/**
+ * Global Tab Switcher
+ * Used in Standings and other tabbed interfaces
+ */
+window.switchTab = function(tab) {
+    console.log('Switching to tab:', tab);
+    
+    // Tab contents
+    const standingsTab = document.getElementById('tab-standings');
+    const bracketTab = document.getElementById('tab-bracket');
+    
+    // Buttons
+    const btnStandings = document.getElementById('btn-standings');
+    const btnBracket = document.getElementById('btn-bracket');
+
+    if (!standingsTab || !bracketTab || !btnStandings || !btnBracket) return;
+
+    if (tab === 'standings') {
+        // Show Standings
+        standingsTab.classList.remove('hidden');
+        bracketTab.classList.add('hidden');
+        
+        // Highlight button
+        btnStandings.classList.add('bg-white', 'dark:bg-slate-700', 'text-nba-blue', 'shadow-sm');
+        btnStandings.classList.remove('text-slate-500', 'dark:text-slate-400');
+        
+        btnBracket.classList.remove('bg-white', 'dark:bg-slate-700', 'text-nba-blue', 'shadow-sm');
+        btnBracket.classList.add('text-slate-500', 'dark:text-slate-400');
+    } else {
+        // Show Bracket
+        standingsTab.classList.add('hidden');
+        bracketTab.classList.remove('hidden');
+        
+        // Highlight button
+        btnBracket.classList.add('bg-white', 'dark:bg-slate-700', 'text-nba-blue', 'shadow-sm');
+        btnBracket.classList.remove('text-slate-500', 'dark:text-slate-400');
+        
+        btnStandings.classList.remove('bg-white', 'dark:bg-slate-700', 'text-nba-blue', 'shadow-sm');
+        btnStandings.classList.add('text-slate-500', 'dark:text-slate-400');
+    }
+};

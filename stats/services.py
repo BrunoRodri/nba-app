@@ -19,6 +19,8 @@ from nba_api.stats.endpoints import (
     boxscoresummaryv2,
     boxscoretraditionalv2,
     leaguestandingsv3,
+    playoffpicture,
+    commonplayoffseries,
 )
 
 from .models import CachedPlayer, CachedTeam
@@ -471,3 +473,118 @@ def get_league_standings(season=None):
     except Exception as e:
         logger.error(f"Error fetching standings: {e}")
         return None
+
+
+def get_playoff_bracket(season=None):
+    """
+    Fetch current playoff bracket based on active series and games.
+    """
+    if season is None:
+        season = get_current_season()
+    
+    try:
+        # Fetch active series structure
+        ps = commonplayoffseries.CommonPlayoffSeries(league_id='00', season=season, timeout=API_TIMEOUT)
+        series_data = ps.get_dict()['resultSets'][0]
+        rows = [dict(zip(series_data['headers'], row)) for row in series_data['rowSet']]
+        
+        if not rows:
+            # Fallback to standings projection if no playoffs have started
+            standings = get_league_standings(season)
+            return _project_bracket(standings['East'], standings['West'])
+
+        # Aggregate series info
+        series_info = {}
+        for r in rows:
+            sid = str(r['SERIES_ID'])
+            if sid not in series_info:
+                series_info[sid] = {
+                    'id': sid,
+                    'high': {'TeamID': r['HOME_TEAM_ID'], 'TeamName': _get_team_name_safe(r['HOME_TEAM_ID'])},
+                    'low': {'TeamID': r['VISITOR_TEAM_ID'], 'TeamName': _get_team_name_safe(r['VISITOR_TEAM_ID'])},
+                    'wins': 0,
+                    'losses': 0,
+                    'round': int(sid[-2]),
+                    'conf': int(sid[-1])
+                }
+
+        # Fetch actual games to count wins/losses
+        from nba_api.stats.endpoints import leaguegamefinder
+        gf = leaguegamefinder.LeagueGameFinder(season_nullable=season, season_type_nullable='Playoffs', timeout=API_TIMEOUT)
+        games_df = gf.get_data_frames()[0]
+        
+        if not games_df.empty:
+            winners = games_df[games_df['WL'] == 'W']
+            for _, row in winners.iterrows():
+                gid = str(row['GAME_ID'])
+                sid = gid[:9] # Extract series ID from game ID
+                team_id = row['TEAM_ID']
+                if sid in series_info:
+                    if series_info[sid]['high']['TeamID'] == team_id:
+                        series_info[sid]['wins'] += 1
+                    elif series_info[sid]['low']['TeamID'] == team_id:
+                        series_info[sid]['losses'] += 1
+
+        # Organize by Round and Conference
+        bracket = {
+            'is_projected': False, 
+            'East': [], 'West': [], 
+            'SemisEast': [], 'SemisWest': [],
+            'FinalsEast': [], 'FinalsWest': [],
+            'Finals': None
+        }
+        
+        # Sort by series ID to maintain the correct bracket order (1v8, 4v5, 3v6, 2v7)
+        sorted_series = sorted(series_info.values(), key=lambda x: x['id'])
+        
+        for matchup in sorted_series:
+            r = matchup['round']
+            idx = int(matchup['id'][-1]) # Series index (0-7)
+            
+            # The series index dictates the conference depending on the round
+            if r == 1:
+                # 0-3 are East, 4-7 are West
+                if idx <= 3: bracket['East'].append(matchup)
+                else: bracket['West'].append(matchup)
+            elif r == 2:
+                # 0-1 are East, 2-3 are West
+                if idx <= 1: bracket['SemisEast'].append(matchup)
+                else: bracket['SemisWest'].append(matchup)
+            elif r == 3:
+                # 0 is East, 1 is West
+                if idx == 0: bracket['FinalsEast'].append(matchup)
+                else: bracket['FinalsWest'].append(matchup)
+            elif r == 4:
+                bracket['Finals'] = matchup
+
+        return bracket
+        
+    except Exception as e:
+        logger.error(f"Error generating playoff bracket: {e}")
+        return None
+
+
+def _get_team_name_safe(team_id):
+    try:
+        team = static_teams.find_team_name_by_id(team_id)
+        return team['nickname'] if team else 'Team ' + str(team_id)
+    except:
+        return 'Team ' + str(team_id)
+
+def _project_bracket(east_standings, west_standings):
+    """Generate a projected 1-8 bracket based on current standings."""
+    def get_matchups(teams):
+        if len(teams) < 8: return []
+        # Standard NBA Bracket: 1v8, 4v5 | 3v6, 2v7
+        # We'll return them in order of top-to-bottom layout
+        m1 = {'high': teams[0], 'low': teams[7], 'id': '1-8'}
+        m2 = {'high': teams[3], 'low': teams[4], 'id': '4-5'}
+        m3 = {'high': teams[2], 'low': teams[5], 'id': '3-6'}
+        m4 = {'high': teams[1], 'low': teams[6], 'id': '2-7'}
+        return [m1, m2, m3, m4]
+
+    return {
+        'is_projected': True,
+        'East': get_matchups(east_standings),
+        'West': get_matchups(west_standings)
+    }

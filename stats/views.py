@@ -177,9 +177,11 @@ def standings(request):
         })
         
     standings_data = services.get_league_standings()
+    bracket_data = services.get_playoff_bracket()
     
     context = {
         'standings': standings_data,
+        'bracket': bracket_data,
         'season': services.get_current_season(),
         'api_error': not standings_data,
     }

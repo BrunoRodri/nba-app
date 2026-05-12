@@ -7,16 +7,30 @@
 <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
     
     <!-- Title Section -->
-    <div class="mb-12">
-        <h1 class="text-4xl font-black text-slate-800 dark:text-white mb-2">
-            Classificação <span class="text-nba-blue">NBA</span>
-        </h1>
-        <p class="text-slate-500 dark:text-slate-400">Temporada Regular {{ season }}</p>
+    <div class="mb-12 flex flex-col md:flex-row md:items-end md:justify-between gap-6">
+        <div>
+            <h1 class="text-4xl font-black text-slate-800 dark:text-white mb-2">
+                Classificação <span class="text-nba-blue">NBA</span>
+            </h1>
+            <p class="text-slate-500 dark:text-slate-400">Temporada Regular {{ season }}</p>
+        </div>
+        
+        <!-- Navigation Tabs -->
+        <div class="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl shadow-inner border border-slate-200/50 dark:border-slate-700/50">
+            <button type="button" onclick="switchTab('standings')" id="btn-standings" 
+                    class="px-6 py-2 rounded-lg font-bold text-sm transition-all cursor-pointer bg-white dark:bg-slate-700 text-nba-blue shadow-sm">
+                Tabelas
+            </button>
+            <button type="button" onclick="switchTab('bracket')" id="btn-bracket" 
+                    class="px-6 py-2 rounded-lg font-bold text-sm transition-all cursor-pointer text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200">
+                Playoff Bracket
+            </button>
+        </div>
     </div>
 
     {% if api_error %}
     <div class="bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800 rounded-2xl p-8 text-center">
-        <h2 class="text-xl font-semibold text-red-800 dark:text-red-400 mb-2">Erro ao carregar classificação</h2>
+        <h2 class="text-xl font-semibold text-red-800 dark:text-red-400 mb-2">Erro ao carregar dados</h2>
         <p class="text-red-600/80 dark:text-red-400/60 mb-6">A API da NBA não respondeu a tempo. Por favor, tente recarregar a página.</p>
         <button onclick="window.location.reload()" class="px-6 py-2 bg-red-600 text-white rounded-xl font-medium hover:bg-red-700 transition-colors">
             Tentar Novamente
@@ -24,73 +38,137 @@
     </div>
     {% else %}
     
-    <div class="flex flex-col lg:grid lg:grid-cols-2 gap-x-12">
-        
-        <!-- Eastern Conference -->
-        <div class="flex-1 min-w-0">
-            <div class="flex items-center gap-3 px-2 mb-8">
-                <div class="w-10 h-10 rounded-xl bg-nba-blue/10 flex items-center justify-center shadow-sm">
-                    <span class="font-bold text-nba-blue">E</span>
+    <!-- Tab 1: Standings Tables -->
+    <div id="tab-standings" class="tab-content">
+        <div class="flex flex-col lg:grid lg:grid-cols-2 gap-x-12">
+            <!-- Eastern Conference -->
+            <div class="flex-1 min-w-0">
+                <div class="flex items-center gap-3 px-2 mb-8">
+                    <div class="w-10 h-10 rounded-xl bg-nba-blue/10 flex items-center justify-center shadow-sm">
+                        <span class="font-bold text-nba-blue">E</span>
+                    </div>
+                    <h2 class="text-2xl font-bold text-slate-800 dark:text-white">Conferência Leste</h2>
                 </div>
-                <h2 class="text-2xl font-bold text-slate-800 dark:text-white">Conferência Leste</h2>
-            </div>
 
-            <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 overflow-hidden shadow-sm">
-                <div class="overflow-x-auto">
-                    <table class="stats-table w-full text-sm">
-                        <thead>
-                            <tr class="text-left border-b border-slate-200 dark:border-slate-700">
-                                <th class="px-4 py-4 font-semibold text-slate-500 dark:text-slate-400">#</th>
-                                <th class="px-4 py-4 font-semibold text-slate-500 dark:text-slate-400">Time</th>
-                                <th class="px-4 py-4 font-semibold text-slate-500 dark:text-slate-400 text-center">V</th>
-                                <th class="px-4 py-4 font-semibold text-slate-500 dark:text-slate-400 text-center">D</th>
-                                <th class="px-4 py-4 font-semibold text-slate-500 dark:text-slate-400 text-center">%</th>
-                                <th class="px-4 py-4 font-semibold text-slate-500 dark:text-slate-400 text-center">JA</th>
-                                <th class="px-4 py-4 font-semibold text-slate-500 dark:text-slate-400 text-center">Seq</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-100 dark:divide-slate-700/50">
-                            {% for team in standings.East %}
-                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors cursor-pointer group" 
-                                data-href="{% url 'stats:team_detail' team.TeamID %}" 
-                                onclick="if(this.dataset.href) window.location.href=this.dataset.href">
-                                <td class="px-4 py-4 font-bold">
-                                    {% if team.PlayoffRank <= 6 %}
-                                        <span style="color: #10b981 !important;">{{ team.PlayoffRank }}</span>
-                                    {% elif team.PlayoffRank <= 10 %}
-                                        <span style="color: #f59e0b !important;">{{ team.PlayoffRank }}</span>
-                                    {% else %}
-                                        <span class="text-slate-400">{{ team.PlayoffRank }}</span>
-                                    {% endif %}
-                                </td>
-                                <td class="px-4 py-4">
-                                    <div class="flex items-center gap-3">
-                                        <img src="https://cdn.nba.com/logos/nba/{{ team.TeamID }}/global/L/logo.svg" alt="{{ team.TeamName }}" class="w-8 h-8 object-contain">
-                                        <div class="min-w-0">
-                                            <div class="font-bold text-slate-700 dark:text-slate-200 group-hover:text-nba-blue transition-colors truncate">
-                                                {{ team.TeamCity }} {{ team.TeamName }}
+                <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 overflow-hidden shadow-sm">
+                    <div class="overflow-x-auto">
+                        <table class="stats-table w-full text-sm">
+                            <thead>
+                                <tr class="text-left border-b border-slate-200 dark:border-slate-700">
+                                    <th class="px-6 py-5 font-semibold text-slate-500 dark:text-slate-400">#</th>
+                                    <th class="px-6 py-5 font-semibold text-slate-500 dark:text-slate-400">Time</th>
+                                    <th class="px-6 py-5 font-semibold text-slate-500 dark:text-slate-400 text-center">V</th>
+                                    <th class="px-6 py-5 font-semibold text-slate-500 dark:text-slate-400 text-center">D</th>
+                                    <th class="px-6 py-5 font-semibold text-slate-500 dark:text-slate-400 text-center">%</th>
+                                    <th class="px-6 py-5 font-semibold text-slate-500 dark:text-slate-400 text-center">JA</th>
+                                    <th class="px-6 py-5 font-semibold text-slate-500 dark:text-slate-400 text-center">Seq</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 dark:divide-slate-700/50">
+                                {% for team in standings.East %}
+                                <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors cursor-pointer group" 
+                                    data-href="{% url 'stats:team_detail' team.TeamID %}" 
+                                    onclick="if(this.dataset.href) window.location.href=this.dataset.href">
+                                    <td class="px-6 py-5 font-bold">
+                                        {% if team.PlayoffRank <= 6 %}
+                                            <span style="color: #10b981 !important;">{{ team.PlayoffRank }}</span>
+                                        {% elif team.PlayoffRank <= 10 %}
+                                            <span style="color: #f59e0b !important;">{{ team.PlayoffRank }}</span>
+                                        {% else %}
+                                            <span class="text-slate-400">{{ team.PlayoffRank }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="px-6 py-5">
+                                        <div class="flex items-center gap-3">
+                                            <img src="https://cdn.nba.com/logos/nba/{{ team.TeamID }}/global/L/logo.svg" alt="{{ team.TeamName }}" class="w-8 h-8 object-contain">
+                                            <div class="min-w-0">
+                                                <div class="font-bold text-slate-700 dark:text-slate-200 group-hover:text-nba-blue transition-colors truncate">
+                                                    {{ team.TeamCity }} {{ team.TeamName }}
+                                                </div>
                                             </div>
                                         </div>
-                                    </div>
-                                </td>
-                                <td class="px-4 py-4 text-center font-bold text-slate-700 dark:text-slate-200">{{ team.WINS }}</td>
-                                <td class="px-4 py-4 text-center font-bold text-slate-700 dark:text-slate-200">{{ team.LOSSES }}</td>
-                                <td class="px-4 py-4 text-center text-slate-500 dark:text-slate-400">{{ team.WinPCT|floatformat:3 }}</td>
-                                <td class="px-4 py-4 text-center text-slate-500 dark:text-slate-400">{{ team.ConferenceGamesBack|default:"-" }}</td>
-                                <td class="px-4 py-4 text-center">
-                                    <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase {% if '-' in team.CurrentStreak %}bg-red-500/10 text-red-500{% else %}bg-emerald-500/10 text-emerald-500{% endif %}">{{ team.CurrentStreak }}</span>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
+                                    </td>
+                                    <td class="px-6 py-5 text-center font-bold text-slate-700 dark:text-slate-200">{{ team.WINS }}</td>
+                                    <td class="px-6 py-5 text-center font-bold text-slate-700 dark:text-slate-200">{{ team.LOSSES }}</td>
+                                    <td class="px-6 py-5 text-center text-slate-500 dark:text-slate-400">{{ team.WinPCT|floatformat:3 }}</td>
+                                    <td class="px-6 py-5 text-center text-slate-500 dark:text-slate-400">{{ team.ConferenceGamesBack|default:"-" }}</td>
+                                    <td class="px-6 py-5 text-center">
+                                        <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase {% if '-' in team.CurrentStreak %}bg-red-500/10 text-red-500{% else %}bg-emerald-500/10 text-emerald-500{% endif %}">{{ team.CurrentStreak }}</span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
+                </div>
+            </div>
+
+            <!-- Western Conference -->
+            <div class="flex-1 min-w-0 mt-12 lg:mt-0">
+                <div class="flex items-center gap-3 px-2 mb-8">
+                    <div class="w-10 h-10 rounded-xl bg-nba-red/10 flex items-center justify-center shadow-sm">
+                        <span class="font-bold text-nba-red">W</span>
+                    </div>
+                    <h2 class="text-2xl font-bold text-slate-800 dark:text-white">Conferência Oeste</h2>
+                </div>
+
+                <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 overflow-hidden shadow-sm">
+                    <div class="overflow-x-auto">
+                        <table class="stats-table w-full text-sm">
+                            <thead>
+                                <tr class="text-left border-b border-slate-200 dark:border-slate-700">
+                                    <th class="px-6 py-5 font-semibold text-slate-500 dark:text-slate-400">#</th>
+                                    <th class="px-6 py-5 font-semibold text-slate-500 dark:text-slate-400">Time</th>
+                                    <th class="px-6 py-5 font-semibold text-slate-500 dark:text-slate-400 text-center">V</th>
+                                    <th class="px-6 py-5 font-semibold text-slate-500 dark:text-slate-400 text-center">D</th>
+                                    <th class="px-6 py-5 font-semibold text-slate-500 dark:text-slate-400 text-center">%</th>
+                                    <th class="px-6 py-5 font-semibold text-slate-500 dark:text-slate-400 text-center">JA</th>
+                                    <th class="px-6 py-5 font-semibold text-slate-500 dark:text-slate-400 text-center">Seq</th>
+                                </tr>
+                            </thead>
+                            <tbody class="divide-y divide-slate-100 dark:divide-slate-700/50">
+                                {% for team in standings.West %}
+                                <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors cursor-pointer group" 
+                                    data-href="{% url 'stats:team_detail' team.TeamID %}" 
+                                    onclick="if(this.dataset.href) window.location.href=this.dataset.href">
+                                    <td class="px-6 py-5 font-bold">
+                                        {% if team.PlayoffRank <= 6 %}
+                                            <span style="color: #10b981 !important;">{{ team.PlayoffRank }}</span>
+                                        {% elif team.PlayoffRank <= 10 %}
+                                            <span style="color: #f59e0b !important;">{{ team.PlayoffRank }}</span>
+                                        {% else %}
+                                            <span class="text-slate-400">{{ team.PlayoffRank }}</span>
+                                        {% endif %}
+                                    </td>
+                                    <td class="px-6 py-5">
+                                        <div class="flex items-center gap-3">
+                                            <img src="https://cdn.nba.com/logos/nba/{{ team.TeamID }}/global/L/logo.svg" alt="{{ team.TeamName }}" class="w-8 h-8 object-contain">
+                                            <div class="min-w-0">
+                                                <div class="font-bold text-slate-700 dark:text-slate-200 group-hover:text-nba-blue transition-colors truncate">
+                                                    {{ team.TeamCity }} {{ team.TeamName }}
+                                                </div>
+                                            </div>
+                                        </div>
+                                    </td>
+                                    <td class="px-6 py-5 text-center font-bold text-slate-700 dark:text-slate-200">{{ team.WINS }}</td>
+                                    <td class="px-6 py-5 text-center font-bold text-slate-700 dark:text-slate-200">{{ team.LOSSES }}</td>
+                                    <td class="px-6 py-5 text-center text-slate-500 dark:text-slate-400">{{ team.WinPCT|floatformat:3 }}</td>
+                                    <td class="px-6 py-5 text-center text-slate-500 dark:text-slate-400">{{ team.ConferenceGamesBack|default:"-" }}</td>
+                                    <td class="px-6 py-5 text-center">
+                                        <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase {% if '-' in team.CurrentStreak %}bg-red-500/10 text-red-500{% else %}bg-emerald-500/10 text-emerald-500{% endif %}">{{ team.CurrentStreak }}</span>
+                                    </td>
+                                </tr>
+                                {% endfor %}
+                            </tbody>
+                        </table>
+                    </div>
                 </div>
             </div>
         </div>
 
-        <!-- Middle Legend (Mobile only) -->
-        <div class="py-12 lg:hidden">
-            <div class="flex flex-wrap items-center justify-center gap-6 text-xs font-medium">
+        <!-- Legend -->
+        <div class="py-12">
+            <div class="flex flex-wrap items-center justify-center gap-8 text-xs font-medium">
                 <div class="flex items-center gap-2">
                     <span class="w-2.5 h-2.5 rounded-full" style="background-color: #10b981;"></span>
                     <span style="color: #10b981;">Playoffs (1-6)</span>
@@ -105,85 +183,215 @@
                 </div>
             </div>
         </div>
+    </div>
 
-        <!-- Western Conference -->
-        <div class="flex-1 min-w-0">
-            <div class="flex items-center gap-3 px-2 mb-8">
-                <div class="w-10 h-10 rounded-xl bg-nba-red/10 flex items-center justify-center shadow-sm">
-                    <span class="font-bold text-nba-red">W</span>
-                </div>
-                <h2 class="text-2xl font-bold text-slate-800 dark:text-white">Conferência Oeste</h2>
-            </div>
-
-            <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 overflow-hidden shadow-sm">
-                <div class="overflow-x-auto">
-                    <table class="stats-table w-full text-sm">
-                        <thead>
-                            <tr class="text-left border-b border-slate-200 dark:border-slate-700">
-                                <th class="px-4 py-4 font-semibold text-slate-500 dark:text-slate-400">#</th>
-                                <th class="px-4 py-4 font-semibold text-slate-500 dark:text-slate-400">Time</th>
-                                <th class="px-4 py-4 font-semibold text-slate-500 dark:text-slate-400 text-center">V</th>
-                                <th class="px-4 py-4 font-semibold text-slate-500 dark:text-slate-400 text-center">D</th>
-                                <th class="px-4 py-4 font-semibold text-slate-500 dark:text-slate-400 text-center">%</th>
-                                <th class="px-4 py-4 font-semibold text-slate-500 dark:text-slate-400 text-center">JA</th>
-                                <th class="px-4 py-4 font-semibold text-slate-500 dark:text-slate-400 text-center">Seq</th>
-                            </tr>
-                        </thead>
-                        <tbody class="divide-y divide-slate-100 dark:divide-slate-700/50">
-                            {% for team in standings.West %}
-                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors cursor-pointer group" 
-                                data-href="{% url 'stats:team_detail' team.TeamID %}" 
-                                onclick="if(this.dataset.href) window.location.href=this.dataset.href">
-                                <td class="px-4 py-4 font-bold">
-                                    {% if team.PlayoffRank <= 6 %}
-                                        <span style="color: #10b981 !important;">{{ team.PlayoffRank }}</span>
-                                    {% elif team.PlayoffRank <= 10 %}
-                                        <span style="color: #f59e0b !important;">{{ team.PlayoffRank }}</span>
-                                    {% else %}
-                                        <span class="text-slate-400">{{ team.PlayoffRank }}</span>
-                                    {% endif %}
-                                </td>
-                                <td class="px-4 py-4">
-                                    <div class="flex items-center gap-3">
-                                        <img src="https://cdn.nba.com/logos/nba/{{ team.TeamID }}/global/L/logo.svg" alt="{{ team.TeamName }}" class="w-8 h-8 object-contain">
-                                        <div class="min-w-0">
-                                            <div class="font-bold text-slate-700 dark:text-slate-200 group-hover:text-nba-blue transition-colors truncate">
-                                                {{ team.TeamCity }} {{ team.TeamName }}
-                                            </div>
-                                        </div>
-                                    </div>
-                                </td>
-                                <td class="px-4 py-4 text-center font-bold text-slate-700 dark:text-slate-200">{{ team.WINS }}</td>
-                                <td class="px-4 py-4 text-center font-bold text-slate-700 dark:text-slate-200">{{ team.LOSSES }}</td>
-                                <td class="px-4 py-4 text-center text-slate-500 dark:text-slate-400">{{ team.WinPCT|floatformat:3 }}</td>
-                                <td class="px-4 py-4 text-center text-slate-500 dark:text-slate-400">{{ team.ConferenceGamesBack|default:"-" }}</td>
-                                <td class="px-4 py-4 text-center">
-                                    <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase {% if '-' in team.CurrentStreak %}bg-red-500/10 text-red-500{% else %}bg-emerald-500/10 text-emerald-500{% endif %}">{{ team.CurrentStreak }}</span>
-                                </td>
-                            </tr>
-                            {% endfor %}
-                        </tbody>
-                    </table>
-                </div>
+    <!-- Tab 2: Playoff Bracket -->
+    <div id="tab-bracket" class="tab-content hidden">
+        <div class="mb-8 p-4 bg-blue-50 dark:bg-blue-900/20 border border-blue-100 dark:border-blue-800 rounded-xl">
+            <div class="flex items-center gap-3 text-blue-800 dark:text-blue-400">
+                <svg xmlns="http://www.w3.org/2000/svg" class="h-5 w-5" viewBox="0 0 20 20" fill="currentColor">
+                    <path fill-rule="evenodd" d="M18 10a8 8 0 11-16 0 8 8 0 0116 0zm-7-4a1 1 0 11-2 0 1 1 0 012 0zM9 9a1 1 0 000 2v3a1 1 0 001 1h1a1 1 0 100-2v-3a1 1 0 00-1-1H9z" clip-rule="evenodd" />
+                </svg>
+                <p class="text-sm font-medium">
+                    {% if bracket.is_projected %}
+                        <strong>Chaveamento Projetado:</strong> Baseado na classificação atual da temporada regular.
+                    {% else %}
+                        <strong>Bracket Ao Vivo:</strong> Acompanhando as séries de Playoff {{ season }} em tempo real.
+                    {% endif %}
+                </p>
             </div>
         </div>
 
-    </div>
+        <div class="relative overflow-x-auto pb-12">
+            <div class="min-w-[1200px] flex gap-8">
+                
+                <!-- Left Side: Eastern Conference -->
+                <div class="flex-1 flex gap-12 items-center">
+                    <!-- Round 1 -->
+                    <div class="flex flex-col gap-8 flex-1">
+                        <div class="text-xs font-bold text-slate-400 uppercase tracking-widest text-center mb-2">Round 1</div>
+                        {% for matchup in bracket.East %}
+                        <div class="bracket-matchup bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl overflow-hidden shadow-sm">
+                            <div class="p-3 flex items-center justify-between border-b border-slate-50 dark:border-slate-700/50">
+                                <div class="flex items-center gap-3">
+                                    <img src="https://cdn.nba.com/logos/nba/{{ matchup.high.TeamID }}/global/L/logo.svg" class="w-6 h-6 object-contain" alt="">
+                                    <span class="font-bold text-slate-700 dark:text-slate-200">{{ matchup.high.TeamName }}</span>
+                                </div>
+                                <span class="text-xs font-bold {% if matchup.wins > matchup.losses %}text-emerald-500{% else %}text-slate-400{% endif %}">{{ matchup.wins }}</span>
+                            </div>
+                            <div class="p-3 flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <img src="https://cdn.nba.com/logos/nba/{{ matchup.low.TeamID }}/global/L/logo.svg" class="w-6 h-6 object-contain" alt="">
+                                    <span class="font-bold text-slate-700 dark:text-slate-200">{{ matchup.low.TeamName }}</span>
+                                </div>
+                                <span class="text-xs font-bold {% if matchup.losses > matchup.wins %}text-emerald-500{% else %}text-slate-400{% endif %}">{{ matchup.losses }}</span>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="text-slate-400 text-[10px] text-center border-2 border-dashed border-slate-100 dark:border-slate-800 rounded-xl py-8">Séries Concluídas</div>
+                        {% endfor %}
+                    </div>
 
-    <!-- Bottom Legend -->
-    <div class="py-12">
-        <div class="flex flex-wrap items-center justify-center gap-8 text-xs font-medium">
-            <div class="flex items-center gap-2">
-                <span class="w-2.5 h-2.5 rounded-full" style="background-color: #10b981;"></span>
-                <span style="color: #10b981;">Playoffs (1-6)</span>
-            </div>
-            <div class="flex items-center gap-2">
-                <span class="w-2.5 h-2.5 rounded-full" style="background-color: #f59e0b;"></span>
-                <span style="color: #f59e0b;">Play-In (7-10)</span>
-            </div>
-            <div class="flex items-center gap-2 text-slate-500 dark:text-slate-400">
-                <span class="w-2.5 h-2.5 rounded-full bg-slate-400"></span>
-                <span>Eliminado</span>
+                    <!-- Conference Semis -->
+                    <div class="flex flex-col gap-32 flex-1">
+                        <div class="text-xs font-bold text-slate-400 uppercase tracking-widest text-center mb-2">Semis</div>
+                        {% for matchup in bracket.SemisEast %}
+                        <div class="bracket-matchup bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl overflow-hidden shadow-sm">
+                            <div class="p-3 flex items-center justify-between border-b border-slate-50 dark:border-slate-700/50">
+                                <div class="flex items-center gap-3">
+                                    <img src="https://cdn.nba.com/logos/nba/{{ matchup.high.TeamID }}/global/L/logo.svg" class="w-6 h-6 object-contain" alt="">
+                                    <span class="font-bold text-slate-700 dark:text-slate-200">{{ matchup.high.TeamName }}</span>
+                                </div>
+                                <span class="text-xs font-bold {% if matchup.wins > matchup.losses %}text-emerald-500{% else %}text-slate-400{% endif %}">{{ matchup.wins }}</span>
+                            </div>
+                            <div class="p-3 flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <img src="https://cdn.nba.com/logos/nba/{{ matchup.low.TeamID }}/global/L/logo.svg" class="w-6 h-6 object-contain" alt="">
+                                    <span class="font-bold text-slate-700 dark:text-slate-200">{{ matchup.low.TeamName }}</span>
+                                </div>
+                                <span class="text-xs font-bold {% if matchup.losses > matchup.wins %}text-emerald-500{% else %}text-slate-400{% endif %}">{{ matchup.losses }}</span>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="bracket-matchup-empty border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl h-24 flex items-center justify-center text-slate-400 text-[10px] font-bold px-4 text-center">Aguardando Round 1</div>
+                        <div class="bracket-matchup-empty border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl h-24 flex items-center justify-center text-slate-400 text-[10px] font-bold px-4 text-center">Aguardando Round 1</div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Conference Finals -->
+                    <div class="flex flex-col gap-12 flex-1">
+                        <div class="text-xs font-bold text-slate-400 uppercase tracking-widest text-center mb-2">Final Leste</div>
+                        {% for matchup in bracket.FinalsEast %}
+                        <div class="bracket-matchup bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl overflow-hidden shadow-sm">
+                            <div class="p-3 flex items-center justify-between border-b border-slate-50 dark:border-slate-700/50">
+                                <div class="flex items-center gap-3">
+                                    <img src="https://cdn.nba.com/logos/nba/{{ matchup.high.TeamID }}/global/L/logo.svg" class="w-6 h-6 object-contain" alt="">
+                                    <span class="font-bold text-slate-700 dark:text-slate-200">{{ matchup.high.TeamName }}</span>
+                                </div>
+                                <span class="text-xs font-bold">{{ matchup.wins }}</span>
+                            </div>
+                            <div class="p-3 flex items-center justify-between">
+                                <div class="flex items-center gap-3">
+                                    <img src="https://cdn.nba.com/logos/nba/{{ matchup.low.TeamID }}/global/L/logo.svg" class="w-6 h-6 object-contain" alt="">
+                                    <span class="font-bold text-slate-700 dark:text-slate-200">{{ matchup.low.TeamName }}</span>
+                                </div>
+                                <span class="text-xs font-bold">{{ matchup.losses }}</span>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="bracket-matchup-empty border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl h-24 flex items-center justify-center text-slate-400 text-[10px] font-bold px-4 text-center font-black uppercase">Campeão Leste</div>
+                        {% endfor %}
+                    </div>
+                </div>
+
+                <!-- Center: NBA Finals -->
+                <div class="w-64 flex flex-col items-center justify-center">
+                    <div class="text-sm font-black text-nba-blue uppercase tracking-[0.3em] mb-4 text-center">NBA Finals</div>
+                    <div class="relative group">
+                        <div class="absolute -inset-1 bg-gradient-to-r from-nba-blue to-nba-red rounded-2xl blur opacity-25 group-hover:opacity-50 transition duration-1000 group-hover:duration-200"></div>
+                        <div class="relative bg-white dark:bg-slate-900 border-2 border-nba-blue/20 rounded-2xl p-8 shadow-2xl flex flex-col items-center gap-6 min-w-[240px]">
+                            {% if bracket.Finals %}
+                                <div class="flex flex-col items-center gap-4 w-full">
+                                    <div class="flex items-center gap-2 w-full justify-between">
+                                        <img src="https://cdn.nba.com/logos/nba/{{ bracket.Finals.high.TeamID }}/global/L/logo.svg" class="w-10 h-10 object-contain">
+                                        <span class="text-xl font-black text-slate-800 dark:text-white">{{ bracket.Finals.wins }}</span>
+                                    </div>
+                                    <div class="text-xs font-black text-slate-400">VS</div>
+                                    <div class="flex items-center gap-2 w-full justify-between">
+                                        <img src="https://cdn.nba.com/logos/nba/{{ bracket.Finals.low.TeamID }}/global/L/logo.svg" class="w-10 h-10 object-contain">
+                                        <span class="text-xl font-black text-slate-800 dark:text-white">{{ bracket.Finals.losses }}</span>
+                                    </div>
+                                </div>
+                            {% else %}
+                                <img src="https://cdn.nba.com/logos/leagues/L/logo.svg" class="w-16 opacity-50 dark:opacity-30" alt="NBA">
+                                <div class="text-center">
+                                    <div class="text-2xl font-black text-slate-800 dark:text-white uppercase">NBA Finals</div>
+                                    <div class="text-[10px] font-bold text-slate-400 tracking-widest mt-2 uppercase">The Journey</div>
+                                </div>
+                            {% endif %}
+                        </div>
+                    </div>
+                </div>
+
+                <!-- Right Side: Western Conference -->
+                <div class="flex-1 flex gap-12 items-center">
+                    <!-- Conference Finals -->
+                    <div class="flex flex-col gap-12 flex-1">
+                        <div class="text-xs font-bold text-slate-400 uppercase tracking-widest text-center mb-2">Final Oeste</div>
+                        {% for matchup in bracket.FinalsWest %}
+                        <div class="bracket-matchup bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl overflow-hidden shadow-sm">
+                            <div class="p-3 flex items-center justify-between border-b border-slate-50 dark:border-slate-700/50">
+                                <span class="text-xs font-bold">{{ matchup.wins }}</span>
+                                <div class="flex items-center gap-3">
+                                    <span class="font-bold text-slate-700 dark:text-slate-200">{{ matchup.high.TeamName }}</span>
+                                    <img src="https://cdn.nba.com/logos/nba/{{ matchup.high.TeamID }}/global/L/logo.svg" class="w-6 h-6 object-contain" alt="">
+                                </div>
+                            </div>
+                            <div class="p-3 flex items-center justify-between">
+                                <span class="text-xs font-bold">{{ matchup.losses }}</span>
+                                <div class="flex items-center gap-3">
+                                    <span class="font-bold text-slate-700 dark:text-slate-200">{{ matchup.low.TeamName }}</span>
+                                    <img src="https://cdn.nba.com/logos/nba/{{ matchup.low.TeamID }}/global/L/logo.svg" class="w-6 h-6 object-contain" alt="">
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="bracket-matchup-empty border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl h-24 flex items-center justify-center text-slate-400 text-[10px] font-bold px-4 text-center font-black uppercase">Campeão Oeste</div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Conference Semis -->
+                    <div class="flex flex-col gap-32 flex-1">
+                        <div class="text-xs font-bold text-slate-400 uppercase tracking-widest text-center mb-2">Semis</div>
+                        {% for matchup in bracket.SemisWest %}
+                        <div class="bracket-matchup bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl overflow-hidden shadow-sm">
+                            <div class="p-3 flex items-center justify-between border-b border-slate-50 dark:border-slate-700/50">
+                                <span class="text-xs font-bold {% if matchup.wins > matchup.losses %}text-emerald-500{% else %}text-slate-400{% endif %}">{{ matchup.wins }}</span>
+                                <div class="flex items-center gap-3">
+                                    <span class="font-bold text-slate-700 dark:text-slate-200">{{ matchup.high.TeamName }}</span>
+                                    <img src="https://cdn.nba.com/logos/nba/{{ matchup.high.TeamID }}/global/L/logo.svg" class="w-6 h-6 object-contain" alt="">
+                                </div>
+                            </div>
+                            <div class="p-3 flex items-center justify-between">
+                                <span class="text-xs font-bold {% if matchup.losses > matchup.wins %}text-emerald-500{% else %}text-slate-400{% endif %}">{{ matchup.losses }}</span>
+                                <div class="flex items-center gap-3">
+                                    <span class="font-bold text-slate-700 dark:text-slate-200">{{ matchup.low.TeamName }}</span>
+                                    <img src="https://cdn.nba.com/logos/nba/{{ matchup.low.TeamID }}/global/L/logo.svg" class="w-6 h-6 object-contain" alt="">
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="bracket-matchup-empty border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl h-24 flex items-center justify-center text-slate-400 text-[10px] font-bold px-4 text-center">Aguardando Round 1</div>
+                        <div class="bracket-matchup-empty border-2 border-dashed border-slate-200 dark:border-slate-700 rounded-xl h-24 flex items-center justify-center text-slate-400 text-[10px] font-bold px-4 text-center">Aguardando Round 1</div>
+                        {% endfor %}
+                    </div>
+
+                    <!-- Round 1 -->
+                    <div class="flex flex-col gap-8 flex-1 text-right">
+                        <div class="text-xs font-bold text-slate-400 uppercase tracking-widest text-center mb-2">Round 1</div>
+                        {% for matchup in bracket.West %}
+                        <div class="bracket-matchup bg-white dark:bg-slate-800 border border-slate-100 dark:border-slate-700 rounded-xl overflow-hidden shadow-sm">
+                            <div class="p-3 flex items-center justify-between border-b border-slate-50 dark:border-slate-700/50">
+                                <span class="text-xs font-bold {% if matchup.wins > matchup.losses %}text-emerald-500{% else %}text-slate-400{% endif %}">{{ matchup.wins }}</span>
+                                <div class="flex items-center gap-3">
+                                    <span class="font-bold text-slate-700 dark:text-slate-200">{{ matchup.high.TeamName }}</span>
+                                    <img src="https://cdn.nba.com/logos/nba/{{ matchup.high.TeamID }}/global/L/logo.svg" class="w-6 h-6 object-contain" alt="">
+                                </div>
+                            </div>
+                            <div class="p-3 flex items-center justify-between">
+                                <span class="text-xs font-bold {% if matchup.losses > matchup.wins %}text-emerald-500{% else %}text-slate-400{% endif %}">{{ matchup.losses }}</span>
+                                <div class="flex items-center gap-3">
+                                    <span class="font-bold text-slate-700 dark:text-slate-200">{{ matchup.low.TeamName }}</span>
+                                    <img src="https://cdn.nba.com/logos/nba/{{ matchup.low.TeamID }}/global/L/logo.svg" class="w-6 h-6 object-contain" alt="">
+                                </div>
+                            </div>
+                        </div>
+                        {% empty %}
+                        <div class="text-slate-400 text-[10px] text-center border-2 border-dashed border-slate-100 dark:border-slate-800 rounded-xl py-8">Séries Concluídas</div>
+                        {% endfor %}
+                    </div>
+                </div>
+
             </div>
         </div>
     </div>
@@ -191,4 +399,46 @@
     {% endif %}
 
 </div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    function switchTab(tab) {
+        console.log('Switching to tab:', tab);
+        
+        // Tab contents
+        const standingsTab = document.getElementById('tab-standings');
+        const bracketTab = document.getElementById('tab-bracket');
+        
+        // Buttons
+        const btnStandings = document.getElementById('btn-standings');
+        const btnBracket = document.getElementById('btn-bracket');
+
+        if (!standingsTab || !bracketTab || !btnStandings || !btnBracket) return;
+
+        if (tab === 'standings') {
+            // Show Standings
+            standingsTab.classList.remove('hidden');
+            bracketTab.classList.add('hidden');
+            
+            // Highlight button
+            btnStandings.classList.add('bg-white', 'dark:bg-slate-700', 'text-nba-blue', 'shadow-sm');
+            btnStandings.classList.remove('text-slate-500', 'dark:text-slate-400');
+            
+            btnBracket.classList.remove('bg-white', 'dark:bg-slate-700', 'text-nba-blue', 'shadow-sm');
+            btnBracket.classList.add('text-slate-500', 'dark:text-slate-400');
+        } else {
+            // Show Bracket
+            standingsTab.classList.add('hidden');
+            bracketTab.classList.remove('hidden');
+            
+            // Highlight button
+            btnBracket.classList.add('bg-white', 'dark:bg-slate-700', 'text-nba-blue', 'shadow-sm');
+            btnBracket.classList.remove('text-slate-500', 'dark:text-slate-400');
+            
+            btnStandings.classList.remove('bg-white', 'dark:bg-slate-700', 'text-nba-blue', 'shadow-sm');
+            btnStandings.classList.add('text-slate-500', 'dark:text-slate-400');
+        }
+    }
+</script>
 {% endblock %}
