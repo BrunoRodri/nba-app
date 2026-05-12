@@ -1,0 +1,247 @@
+import re
+
+with open('stats/templates/stats/standings.html', 'r') as f:
+    lines = f.readlines()
+
+tab_start = -1
+for i, line in enumerate(lines):
+    if 'id="tab-bracket"' in line:
+        tab_start = i
+        break
+
+extra_js_start = -1
+for i, line in enumerate(lines):
+    if '{% block extra_js %}' in line:
+        extra_js_start = i
+        break
+
+new_content = """    <div id="tab-bracket" class="hidden animate-in fade-in slide-in-from-bottom-4 duration-500">
+        <style>
+            .bracket-container {
+                display: grid;
+                grid-template-columns: repeat(7, 1fr);
+                gap: 10px;
+                min-width: 1000px;
+                padding: 40px 0;
+                align-items: center;
+            }
+            .bracket-column {
+                display: flex;
+                flex-direction: column;
+                justify-content: space-around;
+                height: 500px;
+            }
+            .mini-card {
+                background: #1e293b;
+                border: 1px solid #334155;
+                border-radius: 6px;
+                width: 120px;
+                overflow: hidden;
+                box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1);
+            }
+            .mini-team {
+                display: flex;
+                align-items: center;
+                padding: 6px 8px;
+                gap: 8px;
+                height: 40px;
+            }
+            .mini-team:first-child {
+                border-bottom: 1px solid #334155;
+            }
+            .mini-logo {
+                width: 24px;
+                height: 24px;
+                object-fit: contain;
+            }
+            .mini-seed {
+                font-size: 10px;
+                font-weight: 800;
+                color: #64748b;
+                width: 12px;
+            }
+            .mini-score {
+                margin-left: auto;
+                font-size: 13px;
+                font-weight: 900;
+                color: #f8fafc;
+            }
+            .winner-text {
+                color: #10b981;
+            }
+            .center-finals {
+                display: flex;
+                flex-direction: column;
+                align-items: center;
+                gap: 20px;
+            }
+            .finals-trophy {
+                width: 80px;
+                height: 80px;
+                background: radial-gradient(circle, #facc15 0%, #a16207 100%);
+                border-radius: 50%;
+                display: flex;
+                align-items: center;
+                justify-content: center;
+                border: 4px solid #fef08a;
+                box-shadow: 0 0 20px rgba(234, 179, 8, 0.3);
+            }
+        </style>
+
+        <div class="overflow-x-auto lg:overflow-visible pb-12">
+            <div class="bracket-container max-w-7xl mx-auto">
+                
+                <!-- WEST ROUND 1 -->
+                <div class="bracket-column">
+                    <div class="text-[10px] font-black text-slate-500 uppercase tracking-widest text-center mb-4">West R1</div>
+                    {% for matchup in bracket.West %}
+                    <div class="mini-card">
+                        <div class="mini-team">
+                            <span class="mini-seed">{{ matchup.high.Seed|default:"-" }}</span>
+                            <img src="https://cdn.nba.com/logos/nba/{{ matchup.high.TeamID }}/global/L/logo.svg" class="mini-logo">
+                            <span class="mini-score {% if matchup.wins > matchup.losses %}winner-text{% endif %}">{{ matchup.wins }}</span>
+                        </div>
+                        <div class="mini-team">
+                            <span class="mini-seed">{{ matchup.low.Seed|default:"-" }}</span>
+                            <img src="https://cdn.nba.com/logos/nba/{{ matchup.low.TeamID }}/global/L/logo.svg" class="mini-logo">
+                            <span class="mini-score {% if matchup.losses > matchup.wins %}winner-text{% endif %}">{{ matchup.losses }}</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+                <!-- WEST SEMIS -->
+                <div class="bracket-column">
+                    <div class="text-[10px] font-black text-slate-500 uppercase tracking-widest text-center mb-4">Semis</div>
+                    {% for matchup in bracket.SemisWest %}
+                    <div class="mini-card">
+                        <div class="mini-team">
+                            <img src="https://cdn.nba.com/logos/nba/{{ matchup.high.TeamID }}/global/L/logo.svg" class="mini-logo">
+                            <span class="mini-score {% if matchup.wins > matchup.losses %}winner-text{% endif %}">{{ matchup.wins }}</span>
+                        </div>
+                        <div class="mini-team">
+                            <img src="https://cdn.nba.com/logos/nba/{{ matchup.low.TeamID }}/global/L/logo.svg" class="mini-logo">
+                            <span class="mini-score {% if matchup.losses > matchup.wins %}winner-text{% endif %}">{{ matchup.losses }}</span>
+                        </div>
+                    </div>
+                    {% empty %}
+                        <div class="mini-card opacity-20"><div class="mini-team"></div><div class="mini-team"></div></div>
+                        <div class="mini-card opacity-20"><div class="mini-team"></div><div class="mini-team"></div></div>
+                    {% endfor %}
+                </div>
+
+                <!-- WEST FINALS -->
+                <div class="bracket-column">
+                    <div class="text-[10px] font-black text-slate-500 uppercase tracking-widest text-center mb-4">W. Finals</div>
+                    {% for matchup in bracket.FinalsWest %}
+                    <div class="mini-card">
+                        <div class="mini-team">
+                            <img src="https://cdn.nba.com/logos/nba/{{ matchup.high.TeamID }}/global/L/logo.svg" class="mini-logo">
+                            <span class="mini-score">{{ matchup.wins }}</span>
+                        </div>
+                        <div class="mini-team">
+                            <img src="https://cdn.nba.com/logos/nba/{{ matchup.low.TeamID }}/global/L/logo.svg" class="mini-logo">
+                            <span class="mini-score">{{ matchup.losses }}</span>
+                        </div>
+                    </div>
+                    {% empty %}
+                        <div class="mini-card opacity-20"><div class="mini-team"></div><div class="mini-team"></div></div>
+                    {% endfor %}
+                </div>
+
+                <!-- NBA FINALS -->
+                <div class="center-finals">
+                    <div class="finals-trophy">
+                        <svg class="w-10 h-10 text-white" fill="currentColor" viewBox="0 0 24 24">
+                            <path d="M12 2l3.09 6.26L22 9.27l-5 4.87 1.18 6.88L12 17.77l-6.18 3.25L7 14.14 2 9.27l6.91-1.01L12 2z"/>
+                        </svg>
+                    </div>
+                    <div class="text-center">
+                        <div class="text-lg font-black text-white uppercase tracking-tighter">NBA FINALS</div>
+                        <img src="https://cdn.nba.com/logos/leagues/logo-nba.svg" class="w-12 mx-auto mt-2 opacity-50 dark:invert">
+                    </div>
+                    {% if bracket.Finals %}
+                    <div class="mini-card border-2 border-yellow-500/50 scale-110">
+                        <div class="mini-team">
+                            <img src="https://cdn.nba.com/logos/nba/{{ bracket.Finals.high.TeamID }}/global/L/logo.svg" class="mini-logo">
+                            <span class="mini-score">{{ bracket.Finals.wins }}</span>
+                        </div>
+                        <div class="mini-team">
+                            <img src="https://cdn.nba.com/logos/nba/{{ bracket.Finals.low.TeamID }}/global/L/logo.svg" class="mini-logo">
+                            <span class="mini-score">{{ bracket.Finals.losses }}</span>
+                        </div>
+                    </div>
+                    {% endif %}
+                </div>
+
+                <!-- EAST FINALS -->
+                <div class="bracket-column">
+                    <div class="text-[10px] font-black text-slate-500 uppercase tracking-widest text-center mb-4">E. Finals</div>
+                    {% for matchup in bracket.FinalsEast %}
+                    <div class="mini-card">
+                        <div class="mini-team">
+                            <img src="https://cdn.nba.com/logos/nba/{{ matchup.high.TeamID }}/global/L/logo.svg" class="mini-logo">
+                            <span class="mini-score">{{ matchup.wins }}</span>
+                        </div>
+                        <div class="mini-team">
+                            <img src="https://cdn.nba.com/logos/nba/{{ matchup.low.TeamID }}/global/L/logo.svg" class="mini-logo">
+                            <span class="mini-score">{{ matchup.losses }}</span>
+                        </div>
+                    </div>
+                    {% empty %}
+                        <div class="mini-card opacity-20"><div class="mini-team"></div><div class="mini-team"></div></div>
+                    {% endfor %}
+                </div>
+
+                <!-- EAST SEMIS -->
+                <div class="bracket-column">
+                    <div class="text-[10px] font-black text-slate-500 uppercase tracking-widest text-center mb-4">Semis</div>
+                    {% for matchup in bracket.SemisEast %}
+                    <div class="mini-card">
+                        <div class="mini-team">
+                            <img src="https://cdn.nba.com/logos/nba/{{ matchup.high.TeamID }}/global/L/logo.svg" class="mini-logo">
+                            <span class="mini-score {% if matchup.wins > matchup.losses %}winner-text{% endif %}">{{ matchup.wins }}</span>
+                        </div>
+                        <div class="mini-team">
+                            <img src="https://cdn.nba.com/logos/nba/{{ matchup.low.TeamID }}/global/L/logo.svg" class="mini-logo">
+                            <span class="mini-score {% if matchup.losses > matchup.wins %}winner-text{% endif %}">{{ matchup.losses }}</span>
+                        </div>
+                    </div>
+                    {% empty %}
+                        <div class="mini-card opacity-20"><div class="mini-team"></div><div class="mini-team"></div></div>
+                        <div class="mini-card opacity-20"><div class="mini-team"></div><div class="mini-team"></div></div>
+                    {% endfor %}
+                </div>
+
+                <!-- EAST ROUND 1 -->
+                <div class="bracket-column">
+                    <div class="text-[10px] font-black text-slate-500 uppercase tracking-widest text-center mb-4">East R1</div>
+                    {% for matchup in bracket.East %}
+                    <div class="mini-card">
+                        <div class="mini-team">
+                            <span class="mini-seed">{{ matchup.high.Seed|default:"-" }}</span>
+                            <img src="https://cdn.nba.com/logos/nba/{{ matchup.high.TeamID }}/global/L/logo.svg" class="mini-logo">
+                            <span class="mini-score {% if matchup.wins > matchup.losses %}winner-text{% endif %}">{{ matchup.wins }}</span>
+                        </div>
+                        <div class="mini-team">
+                            <span class="mini-seed">{{ matchup.low.Seed|default:"-" }}</span>
+                            <img src="https://cdn.nba.com/logos/nba/{{ matchup.low.TeamID }}/global/L/logo.svg" class="mini-logo">
+                            <span class="mini-score {% if matchup.losses > matchup.wins %}winner-text{% endif %}">{{ matchup.losses }}</span>
+                        </div>
+                    </div>
+                    {% endfor %}
+                </div>
+
+            </div>
+        </div>
+    </div>
+    {% endif %}
+</div>
+{% endblock %}
+
+"""
+
+lines[tab_start:extra_js_start] = [new_content]
+
+with open('stats/templates/stats/standings.html', 'w') as f:
+    f.writelines(lines)
