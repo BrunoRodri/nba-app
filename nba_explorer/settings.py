@@ -128,10 +128,13 @@ DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 # ─── Celery Configuration ─────────────────────────────────────────────
 # Railway fornece REDIS_URL. Se não, tentamos montar.
 _redis_url = config('REDIS_URL', default=None)
+if _redis_url:
+    _redis_url = _redis_url.strip()
+
 if not _redis_url:
-    _rh = config('REDISHOST', default='redis')
-    _rp = config('REDISPORT', default='6379')
-    _rpass = config('REDISPASSWORD', default='')
+    _rh = config('REDISHOST', default='redis').strip()
+    _rp = config('REDISPORT', default='6379').strip()
+    _rpass = config('REDISPASSWORD', default='').strip()
     if _rpass:
         _redis_url = f"redis://:{_rpass}@{_rh}:{_rp}/0"
     else:
