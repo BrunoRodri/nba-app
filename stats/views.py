@@ -40,6 +40,13 @@ def search(request):
 
 def player_detail(request, player_id):
     """Player profile page — bio, career stats, recent games."""
+    if not request.GET.get('fetch'):
+        from django.urls import reverse
+        return render(request, 'stats/loading_skeleton.html', {
+            'target_url': reverse('stats:player_detail', args=[player_id]) + '?fetch=1',
+            'title': 'Carregando Dados do Jogador...',
+        })
+        
     player_info = services.get_player_info(player_id)
     career_data = services.get_player_career_stats(player_id)
     season = services.get_current_season()
@@ -51,12 +58,20 @@ def player_detail(request, player_id):
         'game_log': game_log,
         'season': season,
         'player_id': player_id,
+        'api_error': not player_info or not career_data.get('career'),
     }
     return render(request, 'stats/player_detail.html', context)
 
 
 def team_detail(request, team_id):
     """Team profile page — info, roster, season record, recent games."""
+    if not request.GET.get('fetch'):
+        from django.urls import reverse
+        return render(request, 'stats/loading_skeleton.html', {
+            'target_url': reverse('stats:team_detail', args=[team_id]) + '?fetch=1',
+            'title': 'Carregando Dados da Franquia...',
+        })
+        
     team_info = services.get_team_info(team_id)
     season = services.get_current_season()
     roster = services.get_team_roster(team_id, season=season)
@@ -70,11 +85,19 @@ def team_detail(request, team_id):
         'history': history,
         'season': season,
         'team_id': team_id,
+        'api_error': not team_info or not roster or not history or not record.get('games'),
     }
     return render(request, 'stats/team_detail.html', context)
 
 def team_season_games(request, team_id, season):
     """View to show all games for a specific team in a specific season."""
+    if not request.GET.get('fetch'):
+        from django.urls import reverse
+        return render(request, 'stats/loading_skeleton.html', {
+            'target_url': reverse('stats:team_season_games', args=[team_id, season]) + '?fetch=1',
+            'title': f'Carregando Jogos da Temporada {season}...',
+        })
+        
     team_info = services.get_team_info(team_id)
     games = services.get_team_season_games(team_id, season)
 
@@ -87,6 +110,14 @@ def team_season_games(request, team_id, season):
     return render(request, 'stats/team_season_games.html', context)
 
 def game_detail(request, game_id):
+    """Game detail page — full boxscore."""
+    if not request.GET.get('fetch'):
+        from django.urls import reverse
+        return render(request, 'stats/loading_skeleton.html', {
+            'target_url': reverse('stats:game_detail', args=[game_id]) + '?fetch=1',
+            'title': 'Carregando Box Score da Partida...',
+        })
+        
     boxscore = services.get_game_boxscore(game_id)
 
     if not boxscore:

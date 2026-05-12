@@ -1,0 +1,69 @@
+{% extends "stats/base.html" %}
+
+{% block title %}{{ title }}{% endblock %}
+
+{% block content %}
+<div class="flex flex-col items-center justify-center min-h-[60vh] gap-4 animate-fade-in" id="loading-container">
+    <div class="relative w-16 h-16 flex items-center justify-center">
+        <div class="absolute inset-0 border-4 border-slate-200 dark:border-slate-700 rounded-full"></div>
+        <div class="absolute inset-0 border-4 border-nba-blue border-t-transparent rounded-full animate-spin"></div>
+        <svg class="w-6 h-6 text-nba-red absolute animate-pulse" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+            <circle cx="12" cy="12" r="10" stroke-width="2"/>
+            <path stroke-width="2" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10"/>
+            <path stroke-width="2" d="M2 12h20"/>
+            <path stroke-width="2.5" stroke-linecap="round" d="M12 6v12"/>
+        </svg>
+    </div>
+    <p class="text-lg font-medium text-slate-600 dark:text-slate-300 animate-pulse">{{ title }}</p>
+    <p class="text-sm text-slate-400 dark:text-slate-500 max-w-xs text-center mt-2">Conectando aos servidores oficiais da NBA. Isso pode levar alguns segundos...</p>
+</div>
+
+<script>
+document.addEventListener("DOMContentLoaded", function() {
+    const targetUrl = "{{ target_url|escapejs }}";
+    
+    fetch(targetUrl)
+        .then(response => {
+            if (!response.ok) throw new Error("Network response was not ok");
+            return response.text();
+        })
+        .then(html => {
+            const parser = new DOMParser();
+            const doc = parser.parseFromString(html, 'text/html');
+            
+            // Replace main content
+            const newMain = doc.querySelector('main');
+            const currentMain = document.querySelector('main');
+            
+            if (newMain && currentMain) {
+                currentMain.innerHTML = newMain.innerHTML;
+                
+                // Update page title
+                document.title = doc.title;
+                
+                // Re-initialize animations and other JS functions if needed
+                if (typeof initAnimations === 'function') initAnimations();
+                if (typeof initAutocomplete === 'function') initAutocomplete();
+            } else {
+                window.location.reload();
+            }
+        })
+        .catch(err => {
+            console.error(err);
+            const container = document.getElementById('loading-container');
+            if (container) {
+                container.innerHTML = `
+                    <div class="w-20 h-20 mx-auto mb-6 rounded-2xl bg-red-50 dark:bg-red-900/20 flex items-center justify-center border border-red-100 dark:border-red-800">
+                        <svg class="w-10 h-10 text-red-500 dark:text-red-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M12 9v2m0 4h.01m-6.938 4h13.856c1.54 0 2.502-1.667 1.732-2.5L13.732 4c-.77-.833-1.964-.833-2.732 0L4.082 16.5c-.77.833.192 2.5 1.732 2.5z"/>
+                        </svg>
+                    </div>
+                    <h2 class="text-xl font-semibold text-slate-800 dark:text-slate-200 mb-2">Erro de Conexão</h2>
+                    <p class="text-slate-500 dark:text-slate-400 mb-8 max-w-lg mx-auto">Falha ao carregar a página. Verifique sua conexão com a internet ou tente novamente mais tarde.</p>
+                    <button onclick="window.location.reload()" class="px-5 py-2.5 bg-nba-blue hover:bg-nba-blue-dark text-white rounded-xl font-medium transition-colors">Tentar Novamente</button>
+                `;
+            }
+        });
+});
+</script>
+{% endblock %}
