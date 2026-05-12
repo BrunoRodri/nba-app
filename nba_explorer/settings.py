@@ -126,7 +126,18 @@ STORAGES = {
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # ─── Celery Configuration ─────────────────────────────────────────────
-_redis_url = config('REDIS_URL', default=config('REDIS_PRIVATE_URL', default='redis://redis:6379/1'))
+_redis_host = config('REDISHOST', default='redis')
+_redis_port = config('REDISPORT', default='6379')
+_redis_pass = config('REDISPASSWORD', default='')
+_redis_user = config('REDISUSER', default='default')
+
+# Tenta usar a URL completa, se não existir, monta uma
+_redis_url = config('REDIS_URL', default=None)
+if not _redis_url:
+    if _redis_pass:
+        _redis_url = f"redis://{_redis_user}:{_redis_pass}@{_redis_host}:{_redis_port}/0"
+    else:
+        _redis_url = f"redis://{_redis_host}:{_redis_port}/0"
 
 CELERY_BROKER_URL = _redis_url
 CELERY_RESULT_BACKEND = 'django-db'
