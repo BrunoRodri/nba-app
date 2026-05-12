@@ -136,10 +136,12 @@ CELERY_TIMEZONE = TIME_ZONE
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 
 # ─── Cache Configuration ──────────────────────────────────────────────
+_redis_url = config('REDIS_URL', default=config('REDIS_PRIVATE_URL', default='redis://redis:6379/1'))
+
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": config('REDIS_URL', default='redis://redis:6379/1'),
+        "LOCATION": _redis_url,
     }
 }
 
