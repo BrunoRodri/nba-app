@@ -1,0 +1,194 @@
+{% extends "stats/base.html" %}
+{% load stat_filters %}
+
+{% block title %}Classificação NBA {{ season }} — NBA Stats Explorer{% endblock %}
+
+{% block content %}
+<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
+    
+    <!-- Title Section -->
+    <div class="mb-12">
+        <h1 class="text-4xl font-black text-slate-800 dark:text-white mb-2">
+            Classificação <span class="text-nba-blue">NBA</span>
+        </h1>
+        <p class="text-slate-500 dark:text-slate-400">Temporada Regular {{ season }}</p>
+    </div>
+
+    {% if api_error %}
+    <div class="bg-red-50 dark:bg-red-900/20 border border-red-100 dark:border-red-800 rounded-2xl p-8 text-center">
+        <h2 class="text-xl font-semibold text-red-800 dark:text-red-400 mb-2">Erro ao carregar classificação</h2>
+        <p class="text-red-600/80 dark:text-red-400/60 mb-6">A API da NBA não respondeu a tempo. Por favor, tente recarregar a página.</p>
+        <button onclick="window.location.reload()" class="px-6 py-2 bg-red-600 text-white rounded-xl font-medium hover:bg-red-700 transition-colors">
+            Tentar Novamente
+        </button>
+    </div>
+    {% else %}
+    
+    <div class="flex flex-col lg:grid lg:grid-cols-2 gap-x-12">
+        
+        <!-- Eastern Conference -->
+        <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-3 px-2 mb-8">
+                <div class="w-10 h-10 rounded-xl bg-nba-blue/10 flex items-center justify-center shadow-sm">
+                    <span class="font-bold text-nba-blue">E</span>
+                </div>
+                <h2 class="text-2xl font-bold text-slate-800 dark:text-white">Conferência Leste</h2>
+            </div>
+
+            <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 overflow-hidden shadow-sm">
+                <div class="overflow-x-auto">
+                    <table class="stats-table w-full text-sm">
+                        <thead>
+                            <tr class="text-left border-b border-slate-200 dark:border-slate-700">
+                                <th class="px-4 py-4 font-semibold text-slate-500 dark:text-slate-400">#</th>
+                                <th class="px-4 py-4 font-semibold text-slate-500 dark:text-slate-400">Time</th>
+                                <th class="px-4 py-4 font-semibold text-slate-500 dark:text-slate-400 text-center">V</th>
+                                <th class="px-4 py-4 font-semibold text-slate-500 dark:text-slate-400 text-center">D</th>
+                                <th class="px-4 py-4 font-semibold text-slate-500 dark:text-slate-400 text-center">%</th>
+                                <th class="px-4 py-4 font-semibold text-slate-500 dark:text-slate-400 text-center">JA</th>
+                                <th class="px-4 py-4 font-semibold text-slate-500 dark:text-slate-400 text-center">Seq</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 dark:divide-slate-700/50">
+                            {% for team in standings.East %}
+                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors cursor-pointer group" 
+                                data-href="{% url 'stats:team_detail' team.TeamID %}" 
+                                onclick="if(this.dataset.href) window.location.href=this.dataset.href">
+                                <td class="px-4 py-4 font-bold">
+                                    {% if team.PlayoffRank <= 6 %}
+                                        <span style="color: #10b981 !important;">{{ team.PlayoffRank }}</span>
+                                    {% elif team.PlayoffRank <= 10 %}
+                                        <span style="color: #f59e0b !important;">{{ team.PlayoffRank }}</span>
+                                    {% else %}
+                                        <span class="text-slate-400">{{ team.PlayoffRank }}</span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-4 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <img src="https://cdn.nba.com/logos/nba/{{ team.TeamID }}/global/L/logo.svg" alt="{{ team.TeamName }}" class="w-8 h-8 object-contain">
+                                        <div class="min-w-0">
+                                            <div class="font-bold text-slate-700 dark:text-slate-200 group-hover:text-nba-blue transition-colors truncate">
+                                                {{ team.TeamCity }} {{ team.TeamName }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4 text-center font-bold text-slate-700 dark:text-slate-200">{{ team.WINS }}</td>
+                                <td class="px-4 py-4 text-center font-bold text-slate-700 dark:text-slate-200">{{ team.LOSSES }}</td>
+                                <td class="px-4 py-4 text-center text-slate-500 dark:text-slate-400">{{ team.WinPCT|floatformat:3 }}</td>
+                                <td class="px-4 py-4 text-center text-slate-500 dark:text-slate-400">{{ team.ConferenceGamesBack|default:"-" }}</td>
+                                <td class="px-4 py-4 text-center">
+                                    <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase {% if '-' in team.CurrentStreak %}bg-red-500/10 text-red-500{% else %}bg-emerald-500/10 text-emerald-500{% endif %}">{{ team.CurrentStreak }}</span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+        <!-- Middle Legend (Mobile only) -->
+        <div class="py-12 lg:hidden">
+            <div class="flex flex-wrap items-center justify-center gap-6 text-xs font-medium">
+                <div class="flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full" style="background-color: #10b981;"></span>
+                    <span style="color: #10b981;">Playoffs (1-6)</span>
+                </div>
+                <div class="flex items-center gap-2">
+                    <span class="w-2.5 h-2.5 rounded-full" style="background-color: #f59e0b;"></span>
+                    <span style="color: #f59e0b;">Play-In (7-10)</span>
+                </div>
+                <div class="flex items-center gap-2 text-slate-500 dark:text-slate-400">
+                    <span class="w-2.5 h-2.5 rounded-full bg-slate-400"></span>
+                    <span>Eliminado</span>
+                </div>
+            </div>
+        </div>
+
+        <!-- Western Conference -->
+        <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-3 px-2 mb-8">
+                <div class="w-10 h-10 rounded-xl bg-nba-red/10 flex items-center justify-center shadow-sm">
+                    <span class="font-bold text-nba-red">W</span>
+                </div>
+                <h2 class="text-2xl font-bold text-slate-800 dark:text-white">Conferência Oeste</h2>
+            </div>
+
+            <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 overflow-hidden shadow-sm">
+                <div class="overflow-x-auto">
+                    <table class="stats-table w-full text-sm">
+                        <thead>
+                            <tr class="text-left border-b border-slate-200 dark:border-slate-700">
+                                <th class="px-4 py-4 font-semibold text-slate-500 dark:text-slate-400">#</th>
+                                <th class="px-4 py-4 font-semibold text-slate-500 dark:text-slate-400">Time</th>
+                                <th class="px-4 py-4 font-semibold text-slate-500 dark:text-slate-400 text-center">V</th>
+                                <th class="px-4 py-4 font-semibold text-slate-500 dark:text-slate-400 text-center">D</th>
+                                <th class="px-4 py-4 font-semibold text-slate-500 dark:text-slate-400 text-center">%</th>
+                                <th class="px-4 py-4 font-semibold text-slate-500 dark:text-slate-400 text-center">JA</th>
+                                <th class="px-4 py-4 font-semibold text-slate-500 dark:text-slate-400 text-center">Seq</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 dark:divide-slate-700/50">
+                            {% for team in standings.West %}
+                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors cursor-pointer group" 
+                                data-href="{% url 'stats:team_detail' team.TeamID %}" 
+                                onclick="if(this.dataset.href) window.location.href=this.dataset.href">
+                                <td class="px-4 py-4 font-bold">
+                                    {% if team.PlayoffRank <= 6 %}
+                                        <span style="color: #10b981 !important;">{{ team.PlayoffRank }}</span>
+                                    {% elif team.PlayoffRank <= 10 %}
+                                        <span style="color: #f59e0b !important;">{{ team.PlayoffRank }}</span>
+                                    {% else %}
+                                        <span class="text-slate-400">{{ team.PlayoffRank }}</span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-4 py-4">
+                                    <div class="flex items-center gap-3">
+                                        <img src="https://cdn.nba.com/logos/nba/{{ team.TeamID }}/global/L/logo.svg" alt="{{ team.TeamName }}" class="w-8 h-8 object-contain">
+                                        <div class="min-w-0">
+                                            <div class="font-bold text-slate-700 dark:text-slate-200 group-hover:text-nba-blue transition-colors truncate">
+                                                {{ team.TeamCity }} {{ team.TeamName }}
+                                            </div>
+                                        </div>
+                                    </div>
+                                </td>
+                                <td class="px-4 py-4 text-center font-bold text-slate-700 dark:text-slate-200">{{ team.WINS }}</td>
+                                <td class="px-4 py-4 text-center font-bold text-slate-700 dark:text-slate-200">{{ team.LOSSES }}</td>
+                                <td class="px-4 py-4 text-center text-slate-500 dark:text-slate-400">{{ team.WinPCT|floatformat:3 }}</td>
+                                <td class="px-4 py-4 text-center text-slate-500 dark:text-slate-400">{{ team.ConferenceGamesBack|default:"-" }}</td>
+                                <td class="px-4 py-4 text-center">
+                                    <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase {% if '-' in team.CurrentStreak %}bg-red-500/10 text-red-500{% else %}bg-emerald-500/10 text-emerald-500{% endif %}">{{ team.CurrentStreak }}</span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
+                </div>
+            </div>
+        </div>
+
+    </div>
+
+    <!-- Bottom Legend -->
+    <div class="py-12">
+        <div class="flex flex-wrap items-center justify-center gap-8 text-xs font-medium">
+            <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full" style="background-color: #10b981;"></span>
+                <span style="color: #10b981;">Playoffs (1-6)</span>
+            </div>
+            <div class="flex items-center gap-2">
+                <span class="w-2.5 h-2.5 rounded-full" style="background-color: #f59e0b;"></span>
+                <span style="color: #f59e0b;">Play-In (7-10)</span>
+            </div>
+            <div class="flex items-center gap-2 text-slate-500 dark:text-slate-400">
+                <span class="w-2.5 h-2.5 rounded-full bg-slate-400"></span>
+                <span>Eliminado</span>
+            </div>
+        </div>
+    </div>
+
+    {% endif %}
+
+</div>
+{% endblock %}

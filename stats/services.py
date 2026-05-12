@@ -18,6 +18,7 @@ from nba_api.stats.endpoints import (
     teamyearbyyearstats,
     boxscoresummaryv2,
     boxscoretraditionalv2,
+    leaguestandingsv3,
 )
 
 from .models import CachedPlayer, CachedTeam
@@ -436,4 +437,37 @@ def get_game_boxscore(game_id):
         }
     except Exception as e:
         logger.error(f"Error fetching boxscore for game {game_id}: {e}")
+        return None
+
+
+def get_league_standings(season=None):
+    """Fetch and separate standings by conference."""
+    if season is None:
+        season = get_current_season()
+    try:
+        standings_data = leaguestandingsv3.LeagueStandingsV3(
+            season=season,
+            timeout=API_TIMEOUT
+        ).get_dict()
+        
+        # Convert result set to list of dicts
+        result_set = standings_data['resultSets'][0]
+        headers = result_set['headers']
+        rows = result_set['rowSet']
+        
+        standings = [dict(zip(headers, row)) for row in rows]
+        
+        east = [s for s in standings if s['Conference'] == 'East']
+        west = [s for s in standings if s['Conference'] == 'West']
+        
+        # Sort by WinPCT descending (just in case)
+        east.sort(key=lambda x: x['WinPCT'], reverse=True)
+        west.sort(key=lambda x: x['WinPCT'], reverse=True)
+        
+        return {
+            'East': east,
+            'West': west
+        }
+    except Exception as e:
+        logger.error(f"Error fetching standings: {e}")
         return None

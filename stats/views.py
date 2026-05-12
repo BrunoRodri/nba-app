@@ -165,3 +165,22 @@ def search_api(request):
             'url': f'/team/{t.nba_id}/'
         } for t in teams],
     })
+
+
+def standings(request):
+    """League standings page — Eastern and Western Conferences."""
+    if not request.GET.get('fetch'):
+        from django.urls import reverse
+        return render(request, 'stats/loading_skeleton.html', {
+            'target_url': reverse('stats:standings') + '?fetch=1',
+            'title': 'Carregando Classificação da Liga...',
+        })
+        
+    standings_data = services.get_league_standings()
+    
+    context = {
+        'standings': standings_data,
+        'season': services.get_current_season(),
+        'api_error': not standings_data,
+    }
+    return render(request, 'stats/standings.html', context)

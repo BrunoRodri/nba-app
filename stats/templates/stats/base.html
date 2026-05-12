@@ -42,6 +42,16 @@
                     </span>
                 </a>
 
+                <!-- Nav Links -->
+                <div class="hidden md:flex items-center gap-6 ml-8">
+                    <a href="{% url 'stats:standings' %}" class="text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-nba-blue dark:hover:text-nba-blue transition-colors flex items-center gap-2 group/nav">
+                        <svg class="w-4 h-4 text-slate-400 group-hover/nav:text-nba-blue transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                        </svg>
+                        Classificação
+                    </a>
+                </div>
+
                 <!-- Search bar (desktop) -->
                 <form action="{% url 'stats:search' %}" method="GET" class="relative z-50 hidden md:flex flex-1 max-w-md mx-8" id="nav-search-form">
                     <div class="relative w-full group">
@@ -67,7 +77,12 @@
 
                 <!-- Right side: Theme toggle + mobile menu -->
                 <div class="flex items-center gap-3">
-
+                    <!-- Mobile Standings Link -->
+                    <a href="{% url 'stats:standings' %}" class="md:hidden w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 flex items-center justify-center transition-all text-slate-600 dark:text-slate-400" title="Classificação">
+                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
+                        </svg>
+                    </a>
                     <!-- Mobile menu button -->
                     <button id="mobile-menu-btn" class="md:hidden w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 flex items-center justify-center transition-all" aria-label="Menu">
                         <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">

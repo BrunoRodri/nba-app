@@ -7,7 +7,7 @@ Este documento serve como um mapa da base de código do **NBA Stats Explorer**. 
 - **Frontend:** HTML5, Tailwind CSS (via `django-tailwind`), Vanilla JavaScript
 - **API Externa:** `nba_api` (biblioteca oficial da comunidade para acessar a API da NBA)
 - **Banco de Dados:** PostgreSQL (Docker) / SQLite (Local dev fallback)
-- **Infraestrutura:** Docker & Docker Compose
+- **Infraestrutura:** Docker & Docker Compose (PostgreSQL, Redis, Celery)
 - **Estilo:** Dark Mode Nativo, Design Responsivo, Gradientes Dinâmicos por Time.
 
 ---
@@ -23,7 +23,7 @@ nba/
 ├── stats/                  # 🏀 App Principal de Estatísticas
 ├── theme/                  # App do Tailwind CSS
 ├── Dockerfile              # Definição da imagem da aplicação
-├── docker-compose.yml      # Orquestração (App + PostgreSQL)
+├── docker-compose.yml      # Orquestração (App, DB, Redis, Worker, Beat)
 ├── .env.example            # Modelo de variáveis de ambiente
 ├── requirements.txt        # Dependências Python
 └── manage.py               # Entrypoint do Django
