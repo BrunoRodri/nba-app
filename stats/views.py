@@ -52,8 +52,9 @@ def player_detail(request, player_id):
     season = services.get_current_season()
     game_log = services.get_player_game_log(player_id, season=season)
 
-    # Add team colors for dynamic gradient
-    team_abbr = player_info.get('TEAM_ABBREVIATION') if player_info else None
+    # Add team colors for dynamic gradient only for active players
+    is_active = player_info.get('ROSTERSTATUS') == 'Active' if player_info else False
+    team_abbr = player_info.get('TEAM_ABBREVIATION') if is_active else None
     team_colors = team_constants.get_team_colors(team_abbr)
 
     context = {

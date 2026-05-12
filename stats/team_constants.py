@@ -27,7 +27,7 @@ TEAM_COLORS = {
     'SAC': {'primary': '#5A2D81', 'secondary': '#63727A', 'accent': '#000000'},
     'SAS': {'primary': '#000000', 'secondary': '#707271', 'accent': '#000000'},
     'TOR': {'primary': '#CE1141', 'secondary': '#000000', 'accent': '#CE1141'},
-    'UTA': {'primary': '#002B5C', 'secondary': '#00471B', 'accent': '#F9A01B'},
+    'UTA': {'primary': '#271043', 'secondary': '#4D227A', 'accent': '#1A0A2D'},
     'WAS': {'primary': '#002B5C', 'secondary': '#E31837', 'accent': '#002B5C'},
 }
 
