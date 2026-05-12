@@ -40,7 +40,6 @@
 ### Pré-requisitos
 
 - Python 3.10+
-- Node.js 18+ (para compilar o Tailwind CSS)
 
 ### Instalação com Docker (Recomendado)
 
@@ -59,6 +58,19 @@ docker compose up --build
 ```
 
 Acesse **http://localhost:8000**. O banco PostgreSQL será configurado automaticamente.
+
+> [!IMPORTANT]
+> **O CSS não aparece?** Como o Docker usa os arquivos estáticos pré-compilados, você deve gerar o CSS do Tailwind na sua máquina local pelo menos uma vez antes de rodar o Docker:
+> ```bash
+> python manage.py tailwind install
+> python manage.py tailwind build
+> ```
+
+### 🐋 Docker sem sudo (Linux)
+Se você receber um erro de "permission denied" ao rodar o Docker, execute o comando abaixo para ativar as permissões no seu terminal atual:
+```bash
+newgrp docker
+```
 
 ### Instalação Manual (Desenvolvimento)
 
