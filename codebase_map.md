@@ -3,30 +3,35 @@
 Este documento serve como um mapa da base de código do **NBA Stats Explorer**. Use-o em futuros prompts para rapidamente dar contexto a IA sobre como o projeto está estruturado e como suas partes se comunicam.
 
 ## 🛠️ Stack Tecnológico
-- **Backend:** Python 3.13, Django 6.0.5
-- **Frontend:** HTML5, Tailwind CSS (via `django-tailwind`), Vanilla JavaScript
-- **API Externa:** `nba_api` (biblioteca oficial da comunidade para acessar a API da NBA)
-- **Banco de Dados:** PostgreSQL (Docker) / SQLite (Local dev fallback)
-- **Infraestrutura:** Docker & Docker Compose (PostgreSQL, Redis, Celery)
-- **Estilo:** Dark Mode Nativo, Design Responsivo, Gradientes Dinâmicos por Time.
+- **Backend:** Python 3.13, Django 6.0.5, Celery (Async Tasks)
+- **Frontend:** HTML5, Tailwind CSS, Vanilla JavaScript
+- **API Externa:** `nba_api` (biblioteca oficial para acesso aos dados da NBA)
+- **Banco de Dados:** PostgreSQL (Produção/Docker) / SQLite (Desenvolvimento Local)
+- **Infraestrutura:** Docker & Docker Compose (Serviços: App, DB, Redis, Worker, Beat)
+- **Cache & Message Broker:** Redis
+- **Estilo:** Design Premium (Permanent Dark Mode), Gradientes Dinâmicos, Micro-animações de Scroll.
 
 ---
 
 ## 📂 Estrutura de Diretórios (Arquitetura)
 
-O projeto segue a estrutura padrão do Django, subdividido principalmente em `nba_explorer` (configurações) e `stats` (app principal).
-
 ```text
 nba/
-├── nba_explorer/           # Configurações globais do Django
-├── static/                 # Arquivos estáticos (CSS/JS)
-├── stats/                  # 🏀 App Principal de Estatísticas
-├── theme/                  # App do Tailwind CSS
-├── Dockerfile              # Definição da imagem da aplicação
-├── docker-compose.yml      # Orquestração (App, DB, Redis, Worker, Beat)
-├── .env.example            # Modelo de variáveis de ambiente
-├── requirements.txt        # Dependências Python
-└── manage.py               # Entrypoint do Django
+├── nba_explorer/           # ⚙️ Configurações e Inicialização do Django & Celery
+├── static/                 # 🎨 Ativos Globais (CSS/JS customizado)
+├── stats/                  # 🏀 App Principal (Lógica de Negócio)
+│   ├── management/         # Comandos customizados (ex: populate_cache)
+│   ├── templatetags/       # Filtros customizados (formatação de stats, datas e dicts)
+│   ├── templates/stats/    # Interface do usuário (Django Templates)
+│   ├── scratch/            # Scripts utilitários e testes de lógica (ex: Brackets, PP)
+│   ├── services.py         # Abstração de chamadas à API da NBA
+│   ├── tasks.py            # Definição de tarefas assíncronas (Celery)
+│   └── views.py            # Lógica de rotas e orquestração de dados
+├── theme/                  # 🖋️ Configuração e Build do Tailwind CSS
+├── Dockerfile              # Receita da imagem da aplicação
+├── docker-compose.yml      # Definição de containers (Multi-container setup)
+├── requirements.txt        # Dependências do projeto
+└── manage.py               # Utilitário de linha de comando do Django
 ```
 
 ---
@@ -34,44 +39,42 @@ nba/
 ## 🧠 Core Components (Módulos Principais)
 
 ### 1. `stats/services.py`
-**A Camada de Inteligência / Proxy da API.**
-É o arquivo mais crítico do backend. Nenhuma View interage com a `nba_api` diretamente; elas chamam as funções do `services.py`.
-*   `get_team_info(team_id)`: Retorna os dados básicos da franquia (`TeamDetails`).
-*   `get_team_season_record(team_id, season)`: Calcula vitórias, derrotas e traz os últimos 10 jogos da temporada regular (`LeagueGameFinder`).
-*   `get_team_history(team_id)`: Traz o histórico de vitórias/derrotas de todas as temporadas (`TeamYearByYearStats`).
-*   `get_player_info(player_id)`: Traz dados biográficos (`CommonPlayerInfo`).
-*   `get_player_career_stats(player_id)`: Estatísticas da carreira do jogador (`PlayerCareerStats`).
-*   `get_game_boxscore(game_id)`: Traz o boxscore completo de uma partida, utilizando os **Endpoints V3** (`BoxScoreSummaryV3`, `BoxScoreTraditionalV3`, `BoxScoreMiscV3`) para resolver bugs de dados zerados em temporadas recentes.
-*   `get_playoff_bracket(season)`: O motor dos playoffs. Combina `CommonPlayoffSeries` para mapear os confrontos e `LeagueGameFinder` para calcular vitórias/derrotas em tempo real, gerando uma estrutura de dados compatível com o design de chaves (Round 1, Semis, Finals).
+**O Coração dos Dados.** Abstrai a complexidade da `nba_api`.
+*   **Playoff Bracket (`get_playoff_bracket`):** Mapeia toda a árvore de playoffs. Cruza dados de séries (`CommonPlayoffSeries`) com resultados de jogos para calcular o status de cada confronto em tempo real. Organiza os dados em uma estrutura hierárquica (Round 1 -> Semis -> Finals) separada por Conferência.
+*   **Game Boxscore (V3):** Utiliza os novos endpoints da NBA (V3) para garantir dados precisos e scores por período em tempo real, evitando bugs de dados zerados presentes nas versões legadas.
 
-### 2. `stats/views.py`
-**Controladores de Rota.**
-Lidam com a requisição do usuário. *Padrão de UX Moderno:* implementam retorno em **duas etapas** (Skeleton Pattern).
-*   Se a requisição vier sem o parâmetro `?fetch=1`, as views retornam instantaneamente `loading_skeleton.html`.
-*   Se a requisição contiver `?fetch=1`, elas invocam `services.py`, processam os dados, interceptam eventuais *Timeouts* da API da NBA (`api_error=True`) e retornam a página real.
-*   **Rotas:** `index`, `search`, `player_detail`, `team_detail`, `team_season_games`, `game_detail`, `api_search`, `standings`.
+### 2. `stats/tasks.py` & Celery
+**Processamento em Segundo Plano.** Garante performance e dados sempre frescos.
+*   `update_player_cache_task`: Roda via `Celery Beat` para atualizar o cache local de jogadores e times, evitando lentidões na busca e autocomplete.
+*   `debug_ping`: Tarefa de diagnóstico para validar a conectividade entre App -> Redis -> Worker.
 
-### 3. Templates HTML (`stats/templates/stats/`)
-**A Camada de Apresentação.**
-*   `base.html`: Navbar de navegação, barra de pesquisa, botão Dark Mode, carregamento de estilos.
-*   `index.html`: Grid de times e lista de jogadores em destaque.
-*   `loading_skeleton.html`: Tela de carregamento nativa. Ao ser renderizada, ela roda um script JS que usa `fetch()` para puxar silenciosamente o conteúdo real da rota e substituir a tela.
-*   `team_detail.html` / `player_detail.html`: Exibição rica em detalhes. Têm suporte a tela de "Erro de Conexão" caso a view dispare a flag `api_error` (Timeouts da NBA).
-*   `standings.html`: Dashboard de classificação da temporada regular e um **Playoff Bracket Interativo** completo, com visualização tradicional de chaves (Oeste na esquerda, Leste na direita) e dados sincronizados em tempo real.
-*   `game_detail.html` & `_team_boxscore.html`: Visualização de pontuação quarto a quarto, estatísticas de equipes, lideranças e lista completa de pontuação dos jogadores, com tratamento de jogadores inativos (DNP).
+### 3. `stats/templatetags/stat_filters.py`
+**Formatação Inteligente.** Filtros para garantir que os dados brutos da API sejam legíveis:
+*   `format_pct`: Converte decimais (0.485) em percentuais (48.5%).
+*   `format_stat`: Arredonda médias para uma casa decimal.
+*   `format_date`: Padroniza datas da API (YYYY-MM-DD) para o formato brasileiro (DD-MM-YYYY).
+*   `get_item`: Facilita o acesso dinâmico a chaves de dicionários dentro dos templates.
 
-### 4. Frontend (`static/js/app.js`)
-*   **Autocomplete (`initAutocomplete`):** Intercepta o input de busca, faz fetch em `/api/search/` e desenha um dropdown com resultados e headshots instantaneamente.
-*   **Animações (`initAnimations`):** Implementa um `IntersectionObserver` que adiciona efeitos de *fade-in* e *slide-up* conforme o usuário faz o scroll pela página.
-*   **Gestão de Tabs (`switchTab`):** Função exposta no escopo global para alternar entre as visões de "Tabelas de Classificação" e "Playoff Bracket" sem recarregar a página, garantindo persistência de estado.
-*   **Design:** O tema claro foi removido em favor de um design premium permanentemente escuro.
+### 4. `stats/templates/stats/standings.html`
+**Dashboard Central.** Exibe a Classificação da Temporada Regular e o **Playoff Bracket**.
+*   **Bracket Design:** Utiliza uma estrutura CSS complexa para exibir chaves tradicionais. A lógica de renderização suporta "Seeds", placares de séries e estados de "concluído".
+*   **Interatividade:** Usa o `app.js` para alternar entre as visões de Tabelas e Brackets sem refresh, mantendo uma experiência de SPA.
 
 ---
 
-## 🐛 Pontos de Atenção & Manutenção (Gotchas)
-1. **API Timeouts:** A `nba_api` faz raspagem oficial de `stats.nba.com`. Este servidor bloqueia conexões em excesso (rate-limit) ou demora a responder (> 15s). O projeto mitiga isso usando `api_error` nas views e informando o usuário na tela de UI de erro.
-2. **Endpoints V2 vs V3:** O Boxscore de partidas precisou ser migrado dos Endpoints V2 (descontinuados/zerados para a temporada 25-26) para os Endpoints V3. Se mais informações de jogos começarem a voltar com valores nulos, a solução será inspecionar a documentação da `nba_api` para atualizar outros módulos V2 remanescentes para V3.
-3. **Skeleton Loading Pattern:** O fluxo atual é: URL muda instantaneamente -> Servidor retorna `loading_skeleton.html` vazio -> Javascript na página dispara um `fetch('...?fetch=1')` -> Resposta HTML substitui a tag `<main>` atual.
+## 🏗️ Infraestrutura & Docker
+O projeto agora é totalmente containerizado para garantir paridade entre ambientes:
+*   **App:** O container Python/Django.
+*   **Postgres:** Banco de dados relacional persistente.
+*   **Redis:** Atua como Broker para o Celery e Backend para cache.
+*   **Worker:** Executa as tarefas de `tasks.py`.
+*   **Beat:** O agendador de tarefas cronometradas.
 
 ---
-**Dica para os próximos prompts:** Você pode me pedir para ler este arquivo referenciando `codebase_map.md` sempre que mudarmos de contexto ou iniciarmos um novo dia de trabalho no projeto.
+
+## 🐛 Pontos de Atenção (Gotchas)
+1. **Conectividade Docker:** Em ambiente Docker, use os nomes dos serviços (ex: `redis`, `db`) nas variáveis de ambiente em vez de `localhost`.
+2. **Skeleton Loading:** As views principais (`team_detail`, `player_detail`, `game_detail`, `standings`) usam o padrão de fetch em duas etapas. Se você adicionar uma nova página pesada, lembre-se de implementar o suporte ao parâmetro `?fetch=1`.
+
+---
+**Dica para os próximos prompts:** Referencie este `codebase_map.md` sempre que quiser adicionar novos recursos que envolvam tarefas assíncronas ou mudanças na infraestrutura Docker.
