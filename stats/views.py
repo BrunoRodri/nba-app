@@ -52,12 +52,17 @@ def player_detail(request, player_id):
     season = services.get_current_season()
     game_log = services.get_player_game_log(player_id, season=season)
 
+    # Add team colors for dynamic gradient
+    team_abbr = player_info.get('TEAM_ABBREVIATION') if player_info else None
+    team_colors = team_constants.get_team_colors(team_abbr)
+
     context = {
         'player': player_info,
         'career': career_data,
         'game_log': game_log,
         'season': season,
         'player_id': player_id,
+        'team_colors': team_colors,
         'api_error': not player_info or not (career_data and career_data.get('career')),
     }
     return render(request, 'stats/player_detail.html', context)

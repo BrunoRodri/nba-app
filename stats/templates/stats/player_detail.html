@@ -31,11 +31,11 @@
 
     {% elif player %}
     <!-- ═══ Player Hero ═══ -->
-    <section class="relative overflow-hidden bg-gradient-to-br from-nba-blue via-nba-blue-dark to-slate-900">
+    <section class="relative overflow-hidden" style="background: linear-gradient(135deg, {{ team_colors.primary }} 0%, {{ team_colors.secondary }} 50%, {{ team_colors.accent|default:team_colors.primary }} 100%);">
         <!-- Decorative bg -->
-        <div class="absolute inset-0">
-            <div class="absolute top-0 right-0 w-96 h-96 bg-nba-gold/10 rounded-full blur-3xl"></div>
-            <div class="absolute bottom-0 left-0 w-96 h-96 bg-nba-red/10 rounded-full blur-3xl"></div>
+        <div class="absolute inset-0 opacity-30">
+            <div class="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl"></div>
+            <div class="absolute bottom-0 left-0 w-96 h-96 bg-black/20 rounded-full blur-3xl"></div>
         </div>
 
         <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
