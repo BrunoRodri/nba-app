@@ -126,7 +126,9 @@ STORAGES = {
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # ─── Celery Configuration ─────────────────────────────────────────────
-CELERY_BROKER_URL = config('CELERY_BROKER_URL', default='redis://localhost:6379/0')
+_redis_url = config('REDIS_URL', default=config('REDIS_PRIVATE_URL', default='redis://redis:6379/1'))
+
+CELERY_BROKER_URL = _redis_url
 CELERY_RESULT_BACKEND = 'django-db'
 CELERY_CACHE_BACKEND = 'django-cache'
 CELERY_ACCEPT_CONTENT = ['json']
@@ -136,8 +138,6 @@ CELERY_TIMEZONE = TIME_ZONE
 CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 
 # ─── Cache Configuration ──────────────────────────────────────────────
-_redis_url = config('REDIS_URL', default=config('REDIS_PRIVATE_URL', default='redis://redis:6379/1'))
-
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
