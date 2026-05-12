@@ -1,6 +1,6 @@
 from django.shortcuts import render
 from django.http import JsonResponse
-from . import services
+from . import services, team_constants
 
 
 def index(request):
@@ -58,7 +58,7 @@ def player_detail(request, player_id):
         'game_log': game_log,
         'season': season,
         'player_id': player_id,
-        'api_error': not player_info or not career_data.get('career'),
+        'api_error': not player_info or not (career_data and career_data.get('career')),
     }
     return render(request, 'stats/player_detail.html', context)
 
@@ -77,6 +77,10 @@ def team_detail(request, team_id):
     roster = services.get_team_roster(team_id, season=season)
     record = services.get_team_season_record(team_id, season=season)
     history = services.get_team_history(team_id)
+    
+    # Add team colors for dynamic gradient
+    team_abbr = team_info.get('ABBREVIATION') if team_info else None
+    team_colors = team_constants.get_team_colors(team_abbr)
 
     context = {
         'team': team_info,
@@ -85,7 +89,8 @@ def team_detail(request, team_id):
         'history': history,
         'season': season,
         'team_id': team_id,
-        'api_error': not team_info or not roster or not history or not record.get('games'),
+        'team_colors': team_colors,
+        'api_error': not team_info or not roster or not history or not (record and record.get('games')),
     }
     return render(request, 'stats/team_detail.html', context)
 

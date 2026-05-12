@@ -31,11 +31,11 @@
 
     {% elif team %}
     <!-- ═══ Team Hero ═══ -->
-    <section class="relative overflow-hidden bg-gradient-to-br from-slate-800 via-slate-900 to-slate-950">
+    <section class="relative overflow-hidden" style="background: linear-gradient(135deg, {{ team_colors.primary }} 0%, {{ team_colors.secondary }} 50%, {{ team_colors.accent|default:team_colors.primary }} 100%);">
         <!-- Decorative -->
-        <div class="absolute inset-0">
-            <div class="absolute top-0 right-0 w-96 h-96 bg-nba-blue/10 rounded-full blur-3xl"></div>
-            <div class="absolute bottom-0 left-0 w-96 h-96 bg-nba-red/10 rounded-full blur-3xl"></div>
+        <div class="absolute inset-0 opacity-30">
+            <div class="absolute top-0 right-0 w-96 h-96 bg-white/10 rounded-full blur-3xl"></div>
+            <div class="absolute bottom-0 left-0 w-96 h-96 bg-black/20 rounded-full blur-3xl"></div>
         </div>
 
         <div class="relative max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12 md:py-16">
@@ -84,17 +84,17 @@
                     <!-- Season record -->
                     {% if record %}
                     <div class="grid grid-cols-3 gap-4 mt-8 max-w-sm mx-auto md:mx-0">
-                        <div class="bg-white/10 rounded-xl px-4 py-3 text-center">
-                            <p class="text-xs text-white/50 uppercase tracking-wider">Vitórias</p>
-                            <p class="text-2xl font-bold text-emerald-400">{{ record.wins }}</p>
+                        <div class="bg-slate-900/60 backdrop-blur-md border border-slate-700/50 rounded-xl px-4 py-3 text-center shadow-lg">
+                            <p class="text-xs font-semibold text-slate-100 uppercase tracking-wider mb-1">Vitórias</p>
+                            <p class="text-2xl font-bold text-emerald-400 drop-shadow-md">{{ record.wins }}</p>
                         </div>
-                        <div class="bg-white/10 rounded-xl px-4 py-3 text-center">
-                            <p class="text-xs text-white/50 uppercase tracking-wider">Derrotas</p>
-                            <p class="text-2xl font-bold text-red-400">{{ record.losses }}</p>
+                        <div class="bg-slate-900/60 backdrop-blur-md border border-slate-700/50 rounded-xl px-4 py-3 text-center shadow-lg">
+                            <p class="text-xs font-semibold text-slate-100 uppercase tracking-wider mb-1">Derrotas</p>
+                            <p class="text-2xl font-bold text-red-400 drop-shadow-md">{{ record.losses }}</p>
                         </div>
-                        <div class="bg-white/10 rounded-xl px-4 py-3 text-center">
-                            <p class="text-xs text-white/50 uppercase tracking-wider">Win%</p>
-                            <p class="text-2xl font-bold text-nba-gold-light">{{ record.win_pct }}</p>
+                        <div class="bg-slate-900/60 backdrop-blur-md border border-slate-700/50 rounded-xl px-4 py-3 text-center shadow-lg">
+                            <p class="text-xs font-semibold text-slate-100 uppercase tracking-wider mb-1">Win%</p>
+                            <p class="text-2xl font-bold text-amber-400 drop-shadow-md">{{ record.win_pct }}</p>
                         </div>
                     </div>
                     {% endif %}

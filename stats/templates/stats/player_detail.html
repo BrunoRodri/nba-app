@@ -80,27 +80,27 @@
                     <!-- Bio details -->
                     <div class="grid grid-cols-2 sm:grid-cols-4 gap-4 mt-8">
                         {% if player.HEIGHT %}
-                        <div class="bg-white/10 rounded-xl px-4 py-3 text-center">
-                            <p class="text-xs text-white/50 uppercase tracking-wider">Altura</p>
-                            <p class="text-lg font-bold text-white">{{ player.HEIGHT }}</p>
+                        <div class="bg-slate-900/60 backdrop-blur-md border border-slate-700/50 rounded-xl px-4 py-3 text-center shadow-lg">
+                            <p class="text-xs font-semibold text-slate-100 uppercase tracking-wider mb-1">Altura</p>
+                            <p class="text-lg font-bold text-white drop-shadow-md">{{ player.HEIGHT }}</p>
                         </div>
                         {% endif %}
                         {% if player.WEIGHT %}
-                        <div class="bg-white/10 rounded-xl px-4 py-3 text-center">
-                            <p class="text-xs text-white/50 uppercase tracking-wider">Peso</p>
-                            <p class="text-lg font-bold text-white">{{ player.WEIGHT }} lbs</p>
+                        <div class="bg-slate-900/60 backdrop-blur-md border border-slate-700/50 rounded-xl px-4 py-3 text-center shadow-lg">
+                            <p class="text-xs font-semibold text-slate-100 uppercase tracking-wider mb-1">Peso</p>
+                            <p class="text-lg font-bold text-white drop-shadow-md">{{ player.WEIGHT }} lbs</p>
                         </div>
                         {% endif %}
                         {% if player.COUNTRY %}
-                        <div class="bg-white/10 rounded-xl px-4 py-3 text-center">
-                            <p class="text-xs text-white/50 uppercase tracking-wider">País</p>
-                            <p class="text-lg font-bold text-white">{{ player.COUNTRY }}</p>
+                        <div class="bg-slate-900/60 backdrop-blur-md border border-slate-700/50 rounded-xl px-4 py-3 text-center shadow-lg">
+                            <p class="text-xs font-semibold text-slate-100 uppercase tracking-wider mb-1">País</p>
+                            <p class="text-lg font-bold text-white drop-shadow-md">{{ player.COUNTRY }}</p>
                         </div>
                         {% endif %}
                         {% if player.DRAFT_YEAR %}
-                        <div class="bg-white/10 rounded-xl px-4 py-3 text-center">
-                            <p class="text-xs text-white/50 uppercase tracking-wider">Draft</p>
-                            <p class="text-lg font-bold text-white">{{ player.DRAFT_YEAR }}</p>
+                        <div class="bg-slate-900/60 backdrop-blur-md border border-slate-700/50 rounded-xl px-4 py-3 text-center shadow-lg">
+                            <p class="text-xs font-semibold text-slate-100 uppercase tracking-wider mb-1">Draft</p>
+                            <p class="text-lg font-bold text-white drop-shadow-md">{{ player.DRAFT_YEAR }}</p>
                         </div>
                         {% endif %}
                     </div>

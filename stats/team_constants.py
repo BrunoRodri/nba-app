@@ -1,0 +1,36 @@
+TEAM_COLORS = {
+    'ATL': {'primary': '#E03A3E', 'secondary': '#C1D32F', 'accent': '#26282A'},
+    'BOS': {'primary': '#007A33', 'secondary': '#BA9653', 'accent': '#963821'},
+    'BKN': {'primary': '#000000', 'secondary': '#707271', 'accent': '#000000'},
+    'CHA': {'primary': '#1D1160', 'secondary': '#00788C', 'accent': '#1D1160'},
+    'CHI': {'primary': '#CE1141', 'secondary': '#000000', 'accent': '#CE1141'},
+    'CLE': {'primary': '#860038', 'secondary': '#041E42', 'accent': '#FDBB30'},
+    'DAL': {'primary': '#00538C', 'secondary': '#002B5E', 'accent': '#002B5E'},
+    'DEN': {'primary': '#0E2240', 'secondary': '#FEC524', 'accent': '#8B2131'},
+    'DET': {'primary': '#C8102E', 'secondary': '#1D42BA', 'accent': '#C8102E'},
+    'GSW': {'primary': '#FFC72C', 'secondary': '#1D428A', 'accent': '#FFC72C'},
+    'HOU': {'primary': '#CE1141', 'secondary': '#000000', 'accent': '#CE1141'},
+    'IND': {'primary': '#002D62', 'secondary': '#FDBB30', 'accent': '#002D62'},
+    'LAC': {'primary': '#C8102E', 'secondary': '#1D428A', 'accent': '#C8102E'},
+    'LAL': {'primary': '#FDB927', 'secondary': '#552583', 'accent': '#000000'},
+    'MEM': {'primary': '#5D76A9', 'secondary': '#12173F', 'accent': '#F5B112'},
+    'MIA': {'primary': '#98002E', 'secondary': '#F9A01B', 'accent': '#000000'},
+    'MIL': {'primary': '#234927', 'secondary': '#00471B', 'accent': '#234927'},
+    'MIN': {'primary': '#0C2340', 'secondary': '#236192', 'accent': '#0C2340'},
+    'NOP': {'primary': '#0C2340', 'secondary': '#C8102E', 'accent': '#85714D'},
+    'NYK': {'primary': '#F58426', 'secondary': '#006BB6', 'accent': '#F58426'},
+    'OKC': {'primary': '#007AC1', 'secondary': '#EF3B24', 'accent': '#FDBB30'},
+    'ORL': {'primary': '#0077C0', 'secondary': '#000000', 'accent': '#0077C0'},
+    'PHI': {'primary': '#006BB6', 'secondary': '#ED174C', 'accent': '#002B5C'},
+    'PHX': {'primary': '#1D1160', 'secondary': '#E56020', 'accent': '#000000'},
+    'POR': {'primary': '#E03A3E', 'secondary': '#000000', 'accent': '#E03A3E'},
+    'SAC': {'primary': '#5A2D81', 'secondary': '#63727A', 'accent': '#000000'},
+    'SAS': {'primary': '#000000', 'secondary': '#707271', 'accent': '#000000'},
+    'TOR': {'primary': '#CE1141', 'secondary': '#000000', 'accent': '#CE1141'},
+    'UTA': {'primary': '#002B5C', 'secondary': '#00471B', 'accent': '#F9A01B'},
+    'WAS': {'primary': '#002B5C', 'secondary': '#E31837', 'accent': '#002B5C'},
+}
+
+def get_team_colors(abbreviation):
+    """Returns a dictionary of colors for a given team abbreviation."""
+    return TEAM_COLORS.get(abbreviation, {'primary': '#0F172A', 'secondary': '#1E293B', 'accent': '#334155'})
