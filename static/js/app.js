@@ -4,7 +4,6 @@
  */
 
 document.addEventListener('DOMContentLoaded', () => {
-    initDarkMode();
     initMobileMenu();
     initSearchFocus();
     initAnimations();
@@ -12,31 +11,7 @@ document.addEventListener('DOMContentLoaded', () => {
 });
 
 
-// ─── Dark Mode ───────────────────────────────────────────────────────
 
-function initDarkMode() {
-    const toggle = document.getElementById('theme-toggle');
-    if (!toggle) return;
-
-    toggle.addEventListener('click', () => {
-        const html = document.documentElement;
-        const isDark = html.classList.contains('dark');
-
-        if (isDark) {
-            html.classList.remove('dark');
-            localStorage.setItem('theme', 'light');
-        } else {
-            html.classList.add('dark');
-            localStorage.setItem('theme', 'dark');
-        }
-
-        // Add a subtle transition effect
-        toggle.style.transform = 'scale(0.9)';
-        setTimeout(() => {
-            toggle.style.transform = 'scale(1)';
-        }, 150);
-    });
-}
 
 
 // ─── Mobile Menu ─────────────────────────────────────────────────────
