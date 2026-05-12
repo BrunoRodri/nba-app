@@ -76,36 +76,15 @@ TEMPLATES = [
 WSGI_APPLICATION = 'nba_explorer.wsgi.application'
 
 # ─── Database ────────────────────────────────────────────────────────
-# Uses PostgreSQL when DATABASE_URL is set (Docker), falls back to SQLite for local dev.
-_db_url = config('DATABASE_URL', default=None)
+import dj_database_url
 
-if _db_url:
-    import re
-    # Parse postgresql://user:password@host:port/dbname
-    _match = re.match(
-        r'postgresql://(?P<user>[^:]+):(?P<password>[^@]+)@(?P<host>[^:]+):(?P<port>\d+)/(?P<name>.+)',
-        _db_url
+DATABASES = {
+    'default': dj_database_url.config(
+        default=config('DATABASE_URL', default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}"),
+        conn_max_age=600,
+        conn_health_checks=True,
     )
-    if _match:
-        DATABASES = {
-            'default': {
-                'ENGINE': 'django.db.backends.postgresql',
-                'NAME': _match.group('name'),
-                'USER': _match.group('user'),
-                'PASSWORD': _match.group('password'),
-                'HOST': _match.group('host'),
-                'PORT': _match.group('port'),
-            }
-        }
-    else:
-        raise ValueError(f"Could not parse DATABASE_URL: {_db_url}")
-else:
-    DATABASES = {
-        'default': {
-            'ENGINE': 'django.db.backends.sqlite3',
-            'NAME': BASE_DIR / 'db.sqlite3',
-        }
-    }
+}
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
