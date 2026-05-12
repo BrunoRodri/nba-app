@@ -302,81 +302,119 @@ def populate_team_cache():
 
 def get_game_boxscore(game_id):
     try:
-        summary = boxscoresummaryv2.BoxScoreSummaryV2(
-            game_id=game_id,
-            timeout=API_TIMEOUT,
-        )
+        from nba_api.stats.endpoints import boxscoresummaryv3, boxscoretraditionalv3, boxscoremiscv3
 
-        game_summary = summary.game_summary.get_data_frame()
-        line_score = summary.line_score.get_data_frame()
-        other_stats = summary.other_stats.get_data_frame()
-        officials = summary.officials.get_data_frame()
-        inactive = summary.inactive_players.get_data_frame()
-
-        game_info = {}
-        if not game_summary.empty:
-            gs = game_summary.iloc[0].to_dict()
-            game_info = {
-                'game_date': gs.get('GAME_DATE_EST', ''),
-                'game_status': gs.get('GAME_STATUS_TEXT', ''),
-                'home_team_id': gs.get('HOME_TEAM_ID'),
-                'visitor_team_id': gs.get('VISITOR_TEAM_ID'),
+        s = boxscoresummaryv3.BoxScoreSummaryV3(game_id=game_id, timeout=API_TIMEOUT).get_dict()['boxScoreSummary']
+        t = boxscoretraditionalv3.BoxScoreTraditionalV3(game_id=game_id, timeout=API_TIMEOUT).get_dict()['boxScoreTraditional']
+        m = boxscoremiscv3.BoxScoreMiscV3(game_id=game_id, timeout=API_TIMEOUT).get_dict()['boxScoreMisc']
+        
+        home_team_id = s['homeTeamId']
+        visitor_team_id = s['awayTeamId']
+        
+        game_info = {
+            'game_date': s.get('gameEt', '').split('T')[0],
+            'game_status': s.get('gameStatusText', ''),
+            'home_team_id': home_team_id,
+            'visitor_team_id': visitor_team_id,
+        }
+        
+        def map_line(team_summary):
+            periods = team_summary.get('periods', [])
+            q1 = periods[0]['score'] if len(periods) > 0 else 0
+            q2 = periods[1]['score'] if len(periods) > 1 else 0
+            q3 = periods[2]['score'] if len(periods) > 2 else 0
+            q4 = periods[3]['score'] if len(periods) > 3 else 0
+            return {
+                'TEAM_ID': team_summary.get('teamId'),
+                'TEAM_ABBREVIATION': team_summary.get('teamTricode'),
+                'TEAM_CITY_NAME': team_summary.get('teamCity'),
+                'TEAM_NICKNAME': team_summary.get('teamName'),
+                'TEAM_WINS_LOSSES': f"{team_summary.get('teamWins', 0)}-{team_summary.get('teamLosses', 0)}",
+                'PTS': team_summary.get('score'),
+                'PTS_QTR1': q1,
+                'PTS_QTR2': q2,
+                'PTS_QTR3': q3,
+                'PTS_QTR4': q4,
             }
-
-        line_data = line_score.to_dict('records') if not line_score.empty else []
-        other_data = other_stats.to_dict('records') if not other_stats.empty else []
-        officials_data = officials.to_dict('records') if not officials.empty else []
-        inactive_data = inactive.to_dict('records') if not inactive.empty else []
-
-        home_line = None
-        visitor_line = None
-        for line in line_data:
-            if line.get('TEAM_ID') == game_info.get('home_team_id'):
-                home_line = line
-            elif line.get('TEAM_ID') == game_info.get('visitor_team_id'):
-                visitor_line = line
-
-        boxscore = boxscoretraditionalv2.BoxScoreTraditionalV2(
-            game_id=game_id,
-            end_period=0,
-            end_range=0,
-            range_type=0,
-            start_period=1,
-            start_range=0,
-            timeout=API_TIMEOUT,
-        )
-
-        player_stats = boxscore.player_stats.get_data_frame()
-        team_stats = boxscore.team_stats.get_data_frame()
-
-        home_players = []
-        visitor_players = []
-        if not player_stats.empty:
-            for _, row in player_stats.iterrows():
-                p = row.to_dict()
-                if p.get('TEAM_ID') == game_info.get('home_team_id'):
-                    home_players.append(p)
-                elif p.get('TEAM_ID') == game_info.get('visitor_team_id'):
-                    visitor_players.append(p)
-
-        home_team_totals = None
-        visitor_team_totals = None
-        if not team_stats.empty:
-            for _, row in team_stats.iterrows():
-                t = row.to_dict()
-                if t.get('TEAM_ID') == game_info.get('home_team_id'):
-                    home_team_totals = t
-                elif t.get('TEAM_ID') == game_info.get('visitor_team_id'):
-                    visitor_team_totals = t
-
-        home_other = None
-        visitor_other = None
-        for o in other_data:
-            if o.get('TEAM_ID') == game_info.get('home_team_id'):
-                home_other = o
-            elif o.get('TEAM_ID') == game_info.get('visitor_team_id'):
-                visitor_other = o
-
+        
+        home_line = map_line(s['homeTeam'])
+        visitor_line = map_line(s['awayTeam'])
+        
+        def map_players(team_trad):
+            players = []
+            for p in team_trad.get('players', []):
+                st = p.get('statistics', {})
+                players.append({
+                    'TEAM_ID': team_trad.get('teamId'),
+                    'PLAYER_NAME': f"{p.get('firstName', '')} {p.get('familyName', '')}".strip() or p.get('nameI', ''),
+                    'START_POSITION': p.get('position', ''),
+                    'COMMENT': p.get('comment', ''),
+                    'MIN': st.get('minutes', '0:00').split('.')[0] if st.get('minutes') else None,
+                    'PTS': st.get('points'),
+                    'REB': st.get('reboundsTotal'),
+                    'AST': st.get('assists'),
+                    'STL': st.get('steals'),
+                    'BLK': st.get('blocks'),
+                    'FGM': st.get('fieldGoalsMade'),
+                    'FGA': st.get('fieldGoalsAttempted'),
+                    'FG3M': st.get('threePointersMade'),
+                    'FG3A': st.get('threePointersAttempted'),
+                    'FTM': st.get('freeThrowsMade'),
+                    'FTA': st.get('freeThrowsAttempted'),
+                    'PLUS_MINUS': st.get('plusMinusPoints'),
+                })
+            return players
+            
+        home_players = map_players(t['homeTeam'])
+        visitor_players = map_players(t['awayTeam'])
+        
+        def map_totals(team_trad):
+            st = team_trad.get('statistics', {})
+            return {
+                'TEAM_ID': team_trad.get('teamId'),
+                'MIN': st.get('minutes', '0:00').split('.')[0] if st.get('minutes') else '0:00',
+                'PTS': st.get('points'),
+                'REB': st.get('reboundsTotal'),
+                'AST': st.get('assists'),
+                'STL': st.get('steals'),
+                'BLK': st.get('blocks'),
+                'FGM': st.get('fieldGoalsMade'),
+                'FGA': st.get('fieldGoalsAttempted'),
+                'FG3M': st.get('threePointersMade'),
+                'FG3A': st.get('threePointersAttempted'),
+                'FTM': st.get('freeThrowsMade'),
+                'FTA': st.get('freeThrowsAttempted'),
+                'PLUS_MINUS': st.get('plusMinusPoints'),
+            }
+            
+        home_team_totals = map_totals(t['homeTeam'])
+        visitor_team_totals = map_totals(t['awayTeam'])
+        
+        def map_other(team_misc, team_trad):
+            mst = team_misc.get('statistics', {})
+            tst = team_trad.get('statistics', {})
+            return {
+                'TEAM_ID': team_misc.get('teamId'),
+                'TEAM_CITY': team_misc.get('teamCity'),
+                'TEAM_ABBREVIATION': team_misc.get('teamTricode'),
+                'PTS_PAINT': mst.get('pointsPaint'),
+                'PTS_2ND_CHANCE': mst.get('pointsSecondChance'),
+                'PTS_FB': mst.get('pointsFastBreak'),
+                'PTS_OFF_TO': mst.get('pointsOffTurnovers'),
+                'LARGEST_LEAD': s.get('homeTeam' if team_misc.get('teamId') == home_team_id else 'awayTeam', {}).get('statistics', {}).get('biggestLead', 0),
+                'TEAM_TURNOVERS': tst.get('turnovers'),
+            }
+            
+        home_other = map_other(m['homeTeam'], t['homeTeam'])
+        visitor_other = map_other(m['awayTeam'], t['awayTeam'])
+        
+        officials_data = []
+        for off in s.get('officials', []):
+            officials_data.append({
+                'FIRST_NAME': off.get('firstName', ''),
+                'LAST_NAME': off.get('familyName', ''),
+            })
+            
         return {
             'game_info': game_info,
             'home_line': home_line,
@@ -388,7 +426,6 @@ def get_game_boxscore(game_id):
             'home_other': home_other,
             'visitor_other': visitor_other,
             'officials': officials_data,
-            'inactive_players': inactive_data,
         }
     except Exception as e:
         logger.error(f"Error fetching boxscore for game {game_id}: {e}")

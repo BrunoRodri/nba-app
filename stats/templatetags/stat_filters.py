@@ -40,8 +40,10 @@ def get_item(dictionary, key):
 
 @register.filter
 def fmt_int(value):
-    """Format a value as integer (remove .0 decimals)."""
+    """Format a value as integer (remove .0 decimals). Returns '0' for None/NaN."""
     try:
+        if value is None:
+            return "0"
         return str(int(float(value)))
     except (ValueError, TypeError):
         return value

@@ -86,33 +86,33 @@
         {% if boxscore.home_other or boxscore.visitor_other %}
         <div class="grid grid-cols-1 md:grid-cols-2 gap-4 mb-10 animate-slide-up">
             {% if boxscore.visitor_other %}
-            <div class="bg-slate-200/50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700/50 p-5">
+            <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 p-5 shadow-sm">
                 <div class="flex items-center gap-2 mb-3">
                     <img src="https://cdn.nba.com/logos/nba/{{ boxscore.game_info.visitor_team_id }}/global/L/logo.svg" class="w-5 h-5 object-contain" onerror="this.style.display='none'">
                     <span class="text-sm font-bold text-slate-600 dark:text-slate-300">{{ boxscore.visitor_other.TEAM_CITY }} {{ boxscore.visitor_other.TEAM_ABBREVIATION }}</span>
                 </div>
                 <div class="grid grid-cols-2 gap-2 text-sm">
-                    <div class="flex justify-between bg-slate-100/80 dark:bg-slate-700/40 rounded-lg px-3 py-2">
+                    <div class="flex justify-between bg-slate-50 dark:bg-slate-900/50 rounded-lg px-3 py-2 border border-slate-100 dark:border-slate-700/50">
                         <span class="text-slate-500 dark:text-slate-400">Pts Paint</span>
                         <span class="font-semibold text-slate-700 dark:text-slate-200">{{ boxscore.visitor_other.PTS_PAINT|fmt_int }}</span>
                     </div>
-                    <div class="flex justify-between bg-slate-100/80 dark:bg-slate-700/40 rounded-lg px-3 py-2">
+                    <div class="flex justify-between bg-slate-50 dark:bg-slate-900/50 rounded-lg px-3 py-2 border border-slate-100 dark:border-slate-700/50">
                         <span class="text-slate-500 dark:text-slate-400">2nd Chance</span>
                         <span class="font-semibold text-slate-700 dark:text-slate-200">{{ boxscore.visitor_other.PTS_2ND_CHANCE|fmt_int }}</span>
                     </div>
-                    <div class="flex justify-between bg-slate-100/80 dark:bg-slate-700/40 rounded-lg px-3 py-2">
+                    <div class="flex justify-between bg-slate-50 dark:bg-slate-900/50 rounded-lg px-3 py-2 border border-slate-100 dark:border-slate-700/50">
                         <span class="text-slate-500 dark:text-slate-400">Fast Break</span>
                         <span class="font-semibold text-slate-700 dark:text-slate-200">{{ boxscore.visitor_other.PTS_FB|fmt_int }}</span>
                     </div>
-                    <div class="flex justify-between bg-slate-100/80 dark:bg-slate-700/40 rounded-lg px-3 py-2">
+                    <div class="flex justify-between bg-slate-50 dark:bg-slate-900/50 rounded-lg px-3 py-2 border border-slate-100 dark:border-slate-700/50">
                         <span class="text-slate-500 dark:text-slate-400">Pts Off TO</span>
                         <span class="font-semibold text-slate-700 dark:text-slate-200">{{ boxscore.visitor_other.PTS_OFF_TO|fmt_int }}</span>
                     </div>
-                    <div class="flex justify-between bg-slate-100/80 dark:bg-slate-700/40 rounded-lg px-3 py-2">
+                    <div class="flex justify-between bg-slate-50 dark:bg-slate-900/50 rounded-lg px-3 py-2 border border-slate-100 dark:border-slate-700/50">
                         <span class="text-slate-500 dark:text-slate-400">Largest Lead</span>
                         <span class="font-semibold text-slate-700 dark:text-slate-200">{{ boxscore.visitor_other.LARGEST_LEAD|fmt_int }}</span>
                     </div>
-                    <div class="flex justify-between bg-slate-100/80 dark:bg-slate-700/40 rounded-lg px-3 py-2">
+                    <div class="flex justify-between bg-slate-50 dark:bg-slate-900/50 rounded-lg px-3 py-2 border border-slate-100 dark:border-slate-700/50">
                         <span class="text-slate-500 dark:text-slate-400">Turnovers</span>
                         <span class="font-semibold text-slate-700 dark:text-slate-200">{{ boxscore.visitor_other.TEAM_TURNOVERS|fmt_int }}</span>
                     </div>
@@ -121,33 +121,33 @@
             {% endif %}
 
             {% if boxscore.home_other %}
-            <div class="bg-slate-200/50 dark:bg-slate-800/50 rounded-2xl border border-slate-200 dark:border-slate-700/50 p-5">
+            <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 p-5 shadow-sm">
                 <div class="flex items-center gap-2 mb-3">
                     <img src="https://cdn.nba.com/logos/nba/{{ boxscore.game_info.home_team_id }}/global/L/logo.svg" class="w-5 h-5 object-contain" onerror="this.style.display='none'">
                     <span class="text-sm font-bold text-slate-600 dark:text-slate-300">{{ boxscore.home_other.TEAM_CITY }} {{ boxscore.home_other.TEAM_ABBREVIATION }}</span>
                 </div>
                 <div class="grid grid-cols-2 gap-2 text-sm">
-                    <div class="flex justify-between bg-slate-100/80 dark:bg-slate-700/40 rounded-lg px-3 py-2">
+                    <div class="flex justify-between bg-slate-50 dark:bg-slate-900/50 rounded-lg px-3 py-2 border border-slate-100 dark:border-slate-700/50">
                         <span class="text-slate-500 dark:text-slate-400">Pts Paint</span>
                         <span class="font-semibold text-slate-700 dark:text-slate-200">{{ boxscore.home_other.PTS_PAINT|fmt_int }}</span>
                     </div>
-                    <div class="flex justify-between bg-slate-100/80 dark:bg-slate-700/40 rounded-lg px-3 py-2">
+                    <div class="flex justify-between bg-slate-50 dark:bg-slate-900/50 rounded-lg px-3 py-2 border border-slate-100 dark:border-slate-700/50">
                         <span class="text-slate-500 dark:text-slate-400">2nd Chance</span>
                         <span class="font-semibold text-slate-700 dark:text-slate-200">{{ boxscore.home_other.PTS_2ND_CHANCE|fmt_int }}</span>
                     </div>
-                    <div class="flex justify-between bg-slate-100/80 dark:bg-slate-700/40 rounded-lg px-3 py-2">
+                    <div class="flex justify-between bg-slate-50 dark:bg-slate-900/50 rounded-lg px-3 py-2 border border-slate-100 dark:border-slate-700/50">
                         <span class="text-slate-500 dark:text-slate-400">Fast Break</span>
                         <span class="font-semibold text-slate-700 dark:text-slate-200">{{ boxscore.home_other.PTS_FB|fmt_int }}</span>
                     </div>
-                    <div class="flex justify-between bg-slate-100/80 dark:bg-slate-700/40 rounded-lg px-3 py-2">
+                    <div class="flex justify-between bg-slate-50 dark:bg-slate-900/50 rounded-lg px-3 py-2 border border-slate-100 dark:border-slate-700/50">
                         <span class="text-slate-500 dark:text-slate-400">Pts Off TO</span>
                         <span class="font-semibold text-slate-700 dark:text-slate-200">{{ boxscore.home_other.PTS_OFF_TO|fmt_int }}</span>
                     </div>
-                    <div class="flex justify-between bg-slate-100/80 dark:bg-slate-700/40 rounded-lg px-3 py-2">
+                    <div class="flex justify-between bg-slate-50 dark:bg-slate-900/50 rounded-lg px-3 py-2 border border-slate-100 dark:border-slate-700/50">
                         <span class="text-slate-500 dark:text-slate-400">Largest Lead</span>
                         <span class="font-semibold text-slate-700 dark:text-slate-200">{{ boxscore.home_other.LARGEST_LEAD|fmt_int }}</span>
                     </div>
-                    <div class="flex justify-between bg-slate-100/80 dark:bg-slate-700/40 rounded-lg px-3 py-2">
+                    <div class="flex justify-between bg-slate-50 dark:bg-slate-900/50 rounded-lg px-3 py-2 border border-slate-100 dark:border-slate-700/50">
                         <span class="text-slate-500 dark:text-slate-400">Turnovers</span>
                         <span class="font-semibold text-slate-700 dark:text-slate-200">{{ boxscore.home_other.TEAM_TURNOVERS|fmt_int }}</span>
                     </div>
@@ -167,7 +167,7 @@
             <h3 class="text-sm font-semibold text-slate-400 dark:text-slate-500 uppercase tracking-wider mb-3">Árbitros</h3>
             <div class="flex flex-wrap gap-2">
                 {% for off in boxscore.officials %}
-                <span class="px-3 py-1.5 rounded-lg text-sm text-slate-600 dark:text-slate-400 bg-slate-200/50 dark:bg-slate-800/50 border border-slate-200 dark:border-slate-700/50">
+                <span class="px-3 py-1.5 rounded-lg text-sm text-slate-600 dark:text-slate-400 bg-white dark:bg-slate-800 border border-slate-200 dark:border-slate-700 shadow-sm">
                     {{ off.FIRST_NAME }} {{ off.LAST_NAME }}
                 </span>
                 {% endfor %}
