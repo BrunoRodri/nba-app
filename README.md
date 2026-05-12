@@ -27,6 +27,7 @@
 - 🧑‍💼 **Perfil de jogador** — foto, bio, estatísticas por temporada e médias de carreira
 - 🏟️ **Página do time** — elenco completo, recorde W-L, últimos jogos e histórico ano a ano
 - 📊 **Game log** — todos os jogos de uma temporada (regular + playoffs) com placar
+- 🏆 **Playoff Bracket** — visualização interativa das chaves de playoffs em tempo real
 - 🎨 **Estilo Dinâmico** — perfis de jogadores com gradientes baseados nas cores do time atual
 - 🌑 **Tema Escuro Nativo** — design premium focado em modo escuro permanente
 - 📱 **Responsivo** — interface adaptada para desktop, tablet e mobile
@@ -102,7 +103,8 @@ Acesse **http://localhost:8000** no navegador.
 | `/search/?q=LeBron`            | Resultados de busca por jogadores e times      |
 | `/player/<id>/`                 | Perfil detalhado do jogador                    |
 | `/team/<id>/`                   | Perfil do time com elenco e jogos recentes     |
-| `/team/<id>/season/2024-25/`   | Todos os jogos do time em uma temporada        |
+| `/team/<id>/season/2024-25/`    | Todos os jogos do time em uma temporada        |
+| `/standings/`                  | Classificação da temporada e Bracket de Playoffs|
 | `/api/search/?q=...`            | API de autocomplete (JSON)                     |
 | `/admin/`                       | Django Admin                                   |
 
@@ -154,11 +156,11 @@ nba/
   </tr>
   <tr>
     <td><b>Perfil do Jogador</b></td>
-    <td><b>Página do Time</b></td>
+    <td><b>Playoff Bracket</b></td>
   </tr>
   <tr>
     <td>Bio, headshot, estatísticas por temporada e game log recente</td>
-    <td>Elenco, recorde W-L, jogos recentes e histórico ano a ano</td>
+    <td>Chaveamento tradicional de playoffs com vitórias atualizadas ao vivo</td>
   </tr>
 </table>
 

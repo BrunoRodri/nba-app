@@ -42,13 +42,14 @@ nba/
 *   `get_player_info(player_id)`: Traz dados biográficos (`CommonPlayerInfo`).
 *   `get_player_career_stats(player_id)`: Estatísticas da carreira do jogador (`PlayerCareerStats`).
 *   `get_game_boxscore(game_id)`: Traz o boxscore completo de uma partida, utilizando os **Endpoints V3** (`BoxScoreSummaryV3`, `BoxScoreTraditionalV3`, `BoxScoreMiscV3`) para resolver bugs de dados zerados em temporadas recentes.
+*   `get_playoff_bracket(season)`: O motor dos playoffs. Combina `CommonPlayoffSeries` para mapear os confrontos e `LeagueGameFinder` para calcular vitórias/derrotas em tempo real, gerando uma estrutura de dados compatível com o design de chaves (Round 1, Semis, Finals).
 
 ### 2. `stats/views.py`
 **Controladores de Rota.**
 Lidam com a requisição do usuário. *Padrão de UX Moderno:* implementam retorno em **duas etapas** (Skeleton Pattern).
 *   Se a requisição vier sem o parâmetro `?fetch=1`, as views retornam instantaneamente `loading_skeleton.html`.
 *   Se a requisição contiver `?fetch=1`, elas invocam `services.py`, processam os dados, interceptam eventuais *Timeouts* da API da NBA (`api_error=True`) e retornam a página real.
-*   **Rotas:** `index`, `search`, `player_detail`, `team_detail`, `team_season_games`, `game_detail`, `api_search`.
+*   **Rotas:** `index`, `search`, `player_detail`, `team_detail`, `team_season_games`, `game_detail`, `api_search`, `standings`.
 
 ### 3. Templates HTML (`stats/templates/stats/`)
 **A Camada de Apresentação.**
@@ -56,11 +57,13 @@ Lidam com a requisição do usuário. *Padrão de UX Moderno:* implementam retor
 *   `index.html`: Grid de times e lista de jogadores em destaque.
 *   `loading_skeleton.html`: Tela de carregamento nativa. Ao ser renderizada, ela roda um script JS que usa `fetch()` para puxar silenciosamente o conteúdo real da rota e substituir a tela.
 *   `team_detail.html` / `player_detail.html`: Exibição rica em detalhes. Têm suporte a tela de "Erro de Conexão" caso a view dispare a flag `api_error` (Timeouts da NBA).
+*   `standings.html`: Dashboard de classificação da temporada regular e um **Playoff Bracket Interativo** completo, com visualização tradicional de chaves (Oeste na esquerda, Leste na direita) e dados sincronizados em tempo real.
 *   `game_detail.html` & `_team_boxscore.html`: Visualização de pontuação quarto a quarto, estatísticas de equipes, lideranças e lista completa de pontuação dos jogadores, com tratamento de jogadores inativos (DNP).
 
 ### 4. Frontend (`static/js/app.js`)
 *   **Autocomplete (`initAutocomplete`):** Intercepta o input de busca, faz fetch em `/api/search/` e desenha um dropdown com resultados e headshots instantaneamente.
 *   **Animações (`initAnimations`):** Implementa um `IntersectionObserver` que adiciona efeitos de *fade-in* e *slide-up* conforme o usuário faz o scroll pela página.
+*   **Gestão de Tabs (`switchTab`):** Função exposta no escopo global para alternar entre as visões de "Tabelas de Classificação" e "Playoff Bracket" sem recarregar a página, garantindo persistência de estado.
 *   **Design:** O tema claro foi removido em favor de um design premium permanentemente escuro.
 
 ---
