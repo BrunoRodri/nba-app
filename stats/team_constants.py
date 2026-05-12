@@ -1,5 +1,5 @@
 TEAM_COLORS = {
-    'ATL': {'primary': '#E03A3E', 'secondary': '#C1D32F', 'accent': '#26282A'},
+    'ATL': {'primary': '#E03A3E', 'secondary': '#000000', 'accent': '#26282A'},
     'BOS': {'primary': '#007A33', 'secondary': '#BA9653', 'accent': '#963821'},
     'BKN': {'primary': '#000000', 'secondary': '#707271', 'accent': '#000000'},
     'CHA': {'primary': '#1D1160', 'secondary': '#00788C', 'accent': '#1D1160'},
@@ -10,7 +10,7 @@ TEAM_COLORS = {
     'DET': {'primary': '#C8102E', 'secondary': '#1D42BA', 'accent': '#C8102E'},
     'GSW': {'primary': '#FFC72C', 'secondary': '#1D428A', 'accent': '#FFC72C'},
     'HOU': {'primary': '#CE1141', 'secondary': '#000000', 'accent': '#CE1141'},
-    'IND': {'primary': '#002D62', 'secondary': '#FDBB30', 'accent': '#002D62'},
+    'IND': {'primary': '#FDBB30', 'secondary': '#002D62', 'accent': '#FDBB30'},
     'LAC': {'primary': '#C8102E', 'secondary': '#1D428A', 'accent': '#C8102E'},
     'LAL': {'primary': '#FDB927', 'secondary': '#552583', 'accent': '#000000'},
     'MEM': {'primary': '#5D76A9', 'secondary': '#12173F', 'accent': '#F5B112'},

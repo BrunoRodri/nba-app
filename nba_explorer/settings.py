@@ -4,17 +4,18 @@ NBA Stats Explorer — Configuration
 """
 
 from pathlib import Path
+from decouple import config, Csv
 
 # Build paths inside the project like this: BASE_DIR / 'subdir'.
 BASE_DIR = Path(__file__).resolve().parent.parent
 
 # SECURITY WARNING: keep the secret key used in production secret!
-SECRET_KEY = 'django-insecure-!!2(f%a$)qtk!lm7xsb7zzfg%6t%f+3jd_@!ryu1$e*8$3d(-v'
+SECRET_KEY = config('SECRET_KEY', default='django-insecure-dev-key-only')
 
 # SECURITY WARNING: don't run with debug turned on in production!
-DEBUG = True
+DEBUG = config('DEBUG', default=True, cast=bool)
 
-ALLOWED_HOSTS = ['*']
+ALLOWED_HOSTS = config('ALLOWED_HOSTS', default='*', cast=Csv())
 
 # Application definition
 INSTALLED_APPS = [
@@ -68,13 +69,37 @@ TEMPLATES = [
 
 WSGI_APPLICATION = 'nba_explorer.wsgi.application'
 
-# Database
-DATABASES = {
-    'default': {
-        'ENGINE': 'django.db.backends.sqlite3',
-        'NAME': BASE_DIR / 'db.sqlite3',
+# ─── Database ────────────────────────────────────────────────────────
+# Uses PostgreSQL when DATABASE_URL is set (Docker), falls back to SQLite for local dev.
+_db_url = config('DATABASE_URL', default=None)
+
+if _db_url:
+    import re
+    # Parse postgresql://user:password@host:port/dbname
+    _match = re.match(
+        r'postgresql://(?P<user>[^:]+):(?P<password>[^@]+)@(?P<host>[^:]+):(?P<port>\d+)/(?P<name>.+)',
+        _db_url
+    )
+    if _match:
+        DATABASES = {
+            'default': {
+                'ENGINE': 'django.db.backends.postgresql',
+                'NAME': _match.group('name'),
+                'USER': _match.group('user'),
+                'PASSWORD': _match.group('password'),
+                'HOST': _match.group('host'),
+                'PORT': _match.group('port'),
+            }
+        }
+    else:
+        raise ValueError(f"Could not parse DATABASE_URL: {_db_url}")
+else:
+    DATABASES = {
+        'default': {
+            'ENGINE': 'django.db.backends.sqlite3',
+            'NAME': BASE_DIR / 'db.sqlite3',
+        }
     }
-}
 
 # Password validation
 AUTH_PASSWORD_VALIDATORS = [
@@ -95,6 +120,7 @@ STATIC_URL = 'static/'
 STATICFILES_DIRS = [
     BASE_DIR / 'static',
 ]
+STATIC_ROOT = BASE_DIR / 'staticfiles'
 
 # Default primary key field type
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
