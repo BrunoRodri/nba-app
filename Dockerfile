@@ -30,4 +30,6 @@ RUN python manage.py collectstatic --no-input --clear
 
 EXPOSE 8000
 
-# O comando de inicialização continua no docker-compose.yml
+# O comando de inicialização padrão (usado em produção)
+CMD ["sh", "-c", "python manage.py migrate && gunicorn nba_explorer.wsgi:application --bind 0.0.0.0:${PORT:-8000}"]
+
