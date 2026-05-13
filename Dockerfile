@@ -30,5 +30,5 @@ RUN python manage.py collectstatic --no-input --clear
 
 
 # O comando de inicialização padrão (usado em produção)
-CMD ["sh", "-c", "python manage.py migrate && python manage.py populate_cache && python manage.py shell -c 'from stats.tasks import warm_up_teams_cache_task; warm_up_teams_cache_task()' && gunicorn nba_explorer.wsgi:application --bind 0.0.0.0:${PORT:-8000}"]
+CMD ["sh", "-c", "python manage.py migrate && python manage.py populate_cache && gunicorn nba_explorer.wsgi:application --bind 0.0.0.0:${PORT:-8000}"]
 
