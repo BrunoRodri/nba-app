@@ -48,3 +48,28 @@ def warm_up_teams_cache_task():
             
     logger.info("Team cache warm-up completed!")
     return f"Warmed up {count} teams."
+
+@shared_task(name="stats.tasks.warm_up_standings_task", autoretry_for=(Exception,), retry_kwargs={"max_retries": 3, "countdown": 5})
+def warm_up_standings_task():
+    """Background task to pre-fetch standings and bracket data with longer timeout."""
+    logger.info("Starting standings and bracket warm-up...")
+    # Temporarily increase timeout for this background task
+    original_timeout = services.API_TIMEOUT
+    services.API_TIMEOUT = 60 # 1 minute for background task
+    
+    try:
+        s = services.get_league_standings()
+        b = services.get_playoff_bracket()
+        
+        # Check if we actually got data (not just empty structures)
+        if s and s.get('East') and len(s['East']) > 0:
+            logger.info("Standings and bracket warmed up successfully!")
+            return "Success"
+        else:
+            logger.warning("Warm-up completed but returned empty data (likely API timeout).")
+            return "Partial Success (Empty Data)"
+    except Exception as e:
+        logger.error(f"Failed to warm up standings/bracket: {e}")
+        return f"Error: {e}"
+    finally:
+        services.API_TIMEOUT = original_timeout

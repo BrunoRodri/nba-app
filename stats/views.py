@@ -167,6 +167,15 @@ def search_api(request):
     })
 
 
+def bracket_api(request):
+    """API endpoint to fetch playoff bracket data (HTML Partial)."""
+    bracket_data = services.get_playoff_bracket()
+    return render(request, 'stats/partials/bracket_partial.html', {
+        'bracket': bracket_data,
+        'season': services.get_current_season()
+    })
+
+
 def standings(request):
     """League standings page — Eastern and Western Conferences."""
     if not request.GET.get('fetch'):
@@ -177,11 +186,10 @@ def standings(request):
         })
         
     standings_data = services.get_league_standings()
-    bracket_data = services.get_playoff_bracket()
     
     context = {
         'standings': standings_data,
-        'bracket': bracket_data,
+        
         'season': services.get_current_season(),
         'api_error': not standings_data,
     }

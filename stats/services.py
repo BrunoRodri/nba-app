@@ -29,7 +29,22 @@ from .models import CachedPlayer, CachedTeam
 logger = logging.getLogger(__name__)
 
 # Timeout for all NBA API requests (seconds)
-API_TIMEOUT = 15
+API_TIMEOUT = 25
+
+# Standard headers for NBA API requests to avoid blocks
+HEADERS = {
+    'Host': 'stats.nba.com',
+    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64; rv:72.0) Gecko/20100101 Firefox/72.0',
+    'Accept': 'application/json, text/plain, */*',
+    'Accept-Language': 'en-US,en;q=0.5',
+    'Referer': 'https://stats.nba.com/',
+    'Origin': 'https://stats.nba.com',
+    'Connection': 'keep-alive',
+    'Pragma': 'no-cache',
+    'Cache-Control': 'no-cache',
+    'x-nba-stats-origin': 'stats',
+    'x-nba-stats-token': 'true',
+}
 
 # Cache TTLs (seconds)
 CACHE_TTL_TEAM_INFO = 60 * 60 * 24 # 24 hours
@@ -487,9 +502,16 @@ def get_league_standings(season=None):
         
     cache_key = f"league_standings_{season}"
     cached_data = cache.get(cache_key)
+    
+    # If not force_refresh and we have cached data, return it immediately
     if cached_data:
         return cached_data
-
+        
+    # If not force_refresh and we DONT have cached data, but we are in a web request, 
+    # we might want to return empty immediately to avoid blocking the user for 25s,
+    # and let the background task fill it.
+    # But for now, we'll try to fetch if cache is empty.
+    
     try:
         standings_data = leaguestandingsv3.LeagueStandingsV3(
             season=season,
@@ -497,38 +519,41 @@ def get_league_standings(season=None):
             timeout=API_TIMEOUT
         ).get_dict()
         
-        # Convert result set to list of dicts
         result_set = standings_data['resultSets'][0]
         headers = result_set['headers']
         rows = result_set['rowSet']
-        
         standings = [dict(zip(headers, row)) for row in rows]
         
-        east = [s for s in standings if s['Conference'] == 'East']
-        west = [s for s in standings if s['Conference'] == 'West']
+        east = sorted([s for s in standings if s['Conference'] == 'East'], key=lambda x: x['WinPCT'], reverse=True)
+        west = sorted([s for s in standings if s['Conference'] == 'West'], key=lambda x: x['WinPCT'], reverse=True)
         
-        # Sort by WinPCT descending (just in case)
-        east.sort(key=lambda x: x['WinPCT'], reverse=True)
-        west.sort(key=lambda x: x['WinPCT'], reverse=True)
+        result = {'East': east, 'West': west}
         
-        result = {
-            'East': east,
-            'West': west
-        }
-        
-        cache.set(cache_key, result, CACHE_TTL_STANDINGS)
-        return result
+        # ONLY cache if we actually got data!
+        if east or west:
+            cache.set(cache_key, result, CACHE_TTL_STANDINGS)
+            return result
+        else:
+            logger.warning("API returned empty standings, not caching.")
+            return cached_data if cached_data else {'East': [], 'West': []}
+            
     except Exception as e:
         logger.error(f"Error fetching standings: {e}")
-        return None
+        return cached_data if cached_data else {'East': [], 'West': []}
 
 
 def get_playoff_bracket(season=None):
     """
-    Fetch current playoff bracket based on active series and games.
+    Fetch current playoff bracket based on active series and games (Cached).
     """
     if season is None:
         season = get_current_season()
+    
+    cache_key = f"playoff_bracket_{season}"
+    cached_data = cache.get(cache_key)
+    
+    if cached_data:
+        return cached_data
     
     try:
         # Fetch active series structure
@@ -539,7 +564,16 @@ def get_playoff_bracket(season=None):
         if not rows:
             # Fallback to standings projection if no playoffs have started
             standings = get_league_standings(season)
+            if not standings or not standings.get('East'):
+                return {'is_projected': True, 'East': [], 'West': [], 'error': True}
             return _project_bracket(standings['East'], standings['West'])
+
+        # Fetch standings for seeds
+        standings = get_league_standings(season)
+        standings_map = {}
+        if standings:
+            for s in standings.get('East', []) + standings.get('West', []):
+                standings_map[s['TeamID']] = s['PlayoffRank']
 
         # Aggregate series info
         series_info = {}
@@ -548,8 +582,8 @@ def get_playoff_bracket(season=None):
             if sid not in series_info:
                 series_info[sid] = {
                     'id': sid,
-                    'high': {'TeamID': r['HOME_TEAM_ID'], 'TeamName': _get_team_name_safe(r['HOME_TEAM_ID'])},
-                    'low': {'TeamID': r['VISITOR_TEAM_ID'], 'TeamName': _get_team_name_safe(r['VISITOR_TEAM_ID'])},
+                    'high': _get_team_data_safe(r['HOME_TEAM_ID'], standings_map),
+                    'low': _get_team_data_safe(r['VISITOR_TEAM_ID'], standings_map),
                     'wins': 0,
                     'losses': 0,
                     'round': int(sid[-2]),
@@ -605,30 +639,45 @@ def get_playoff_bracket(season=None):
             elif r == 4:
                 bracket['Finals'] = matchup
 
+        if bracket.get('East') or bracket.get('West'): cache.set(cache_key, bracket, CACHE_TTL_STANDINGS)
         return bracket
         
     except Exception as e:
         logger.error(f"Error generating playoff bracket: {e}")
-        return None
+        return {'is_projected': True, 'East': [], 'West': [], 'error': True}
 
 
-def _get_team_name_safe(team_id):
+def _get_team_data_safe(team_id, standings_map=None):
     try:
         team = static_teams.find_team_name_by_id(team_id)
-        return team['nickname'] if team else 'Team ' + str(team_id)
+        data = {
+            'TeamID': team_id,
+            'TeamName': team['nickname'] if team else 'Team ' + str(team_id),
+            'Abbreviation': team['abbreviation'] if team else 'NBA',
+            'Seed': standings_map.get(team_id, '-') if standings_map else '-'
+        }
+        return data
     except:
-        return 'Team ' + str(team_id)
+        return {'TeamID': team_id, 'TeamName': 'Team ' + str(team_id), 'Abbreviation': 'NBA', 'Seed': '-'}
 
 def _project_bracket(east_standings, west_standings):
     """Generate a projected 1-8 bracket based on current standings."""
     def get_matchups(teams):
         if len(teams) < 8: return []
+        
+        def map_team(t):
+            return {
+                'TeamID': t['TeamID'],
+                'TeamName': t['TeamName'],
+                'Abbreviation': static_teams.find_team_name_by_id(t['TeamID'])['abbreviation'],
+                'Seed': t['PlayoffRank']
+            }
+
         # Standard NBA Bracket: 1v8, 4v5 | 3v6, 2v7
-        # We'll return them in order of top-to-bottom layout
-        m1 = {'high': teams[0], 'low': teams[7], 'id': '1-8'}
-        m2 = {'high': teams[3], 'low': teams[4], 'id': '4-5'}
-        m3 = {'high': teams[2], 'low': teams[5], 'id': '3-6'}
-        m4 = {'high': teams[1], 'low': teams[6], 'id': '2-7'}
+        m1 = {'high': map_team(teams[0]), 'low': map_team(teams[7]), 'id': '1-8'}
+        m2 = {'high': map_team(teams[3]), 'low': map_team(teams[4]), 'id': '4-5'}
+        m3 = {'high': map_team(teams[2]), 'low': map_team(teams[5]), 'id': '3-6'}
+        m4 = {'high': map_team(teams[1]), 'low': map_team(teams[6]), 'id': '2-7'}
         return [m1, m2, m3, m4]
 
     return {
