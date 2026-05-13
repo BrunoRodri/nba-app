@@ -1,6 +1,7 @@
 from celery import shared_task
 from . import services
 import logging
+import time
 
 logger = logging.getLogger(__name__)
 
@@ -40,6 +41,10 @@ def warm_up_teams_cache_task():
             services.get_team_info(team.nba_id)
             services.get_team_roster(team.nba_id)
             services.get_team_season_record(team.nba_id)
+            
+            # Be polite to the NBA API to avoid blocks
+            time.sleep(1.5)
+            
             count += 1
             if count % 5 == 0:
                 logger.info(f"Warmed up {count} teams...")
