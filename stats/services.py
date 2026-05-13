@@ -3,7 +3,6 @@ services.py — NBA API abstraction layer.
 All nba_api calls are centralized here with error handling and timeouts.
 """
 import logging
-import time
 from datetime import datetime
 from django.core.cache import cache
 
@@ -29,19 +28,8 @@ from .models import CachedPlayer, CachedTeam
 
 logger = logging.getLogger(__name__)
 
-# Headers para simular um navegador real e evitar bloqueios da NBA API
-HEADERS = {
-    'Host': 'stats.nba.com',
-    'User-Agent': 'Mozilla/5.0 (Windows NT 10.0; Win64; x64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/120.0.0.0 Safari/537.36',
-    'Accept': 'application/json, text/plain, */*',
-    'Accept-Language': 'en-US,en;q=0.5',
-    'Referer': 'https://www.nba.com/',
-    'Origin': 'https://www.nba.com',
-    'Connection': 'keep-alive',
-}
-
 # Timeout for all NBA API requests (seconds)
-API_TIMEOUT = 30
+API_TIMEOUT = 15
 
 # Cache TTLs (seconds)
 CACHE_TTL_TEAM_INFO = 60 * 60 * 24 # 24 hours
@@ -86,7 +74,6 @@ def get_player_info(player_id):
     try:
         info = commonplayerinfo.CommonPlayerInfo(
             player_id=player_id,
-            headers=HEADERS,
             timeout=API_TIMEOUT,
         )
         data = info.common_player_info.get_data_frame()
@@ -110,7 +97,6 @@ def get_player_career_stats(player_id):
         career = playercareerstats.PlayerCareerStats(
             player_id=player_id,
             per_mode36='PerGame',
-            headers=HEADERS,
             timeout=API_TIMEOUT,
         )
         season_totals = career.season_totals_regular_season.get_data_frame()
@@ -133,7 +119,6 @@ def get_player_game_log(player_id, season=None, last_n=10):
         finder = leaguegamefinder.LeagueGameFinder(
             player_id_nullable=player_id,
             season_nullable=season,
-            headers=HEADERS,
             timeout=API_TIMEOUT,
         )
         df = finder.league_game_finder_results.get_data_frame()
@@ -159,7 +144,6 @@ def get_team_info(team_id):
     try:
         details = teamdetails.TeamDetails(
             team_id=team_id,
-            headers=HEADERS,
             timeout=API_TIMEOUT,
         )
         bg = details.team_background.get_data_frame()
@@ -189,7 +173,6 @@ def get_team_roster(team_id, season=None):
         roster = commonteamroster.CommonTeamRoster(
             team_id=team_id,
             season=season,
-            headers=HEADERS,
             timeout=API_TIMEOUT,
         )
         df = roster.common_team_roster.get_data_frame()
@@ -263,7 +246,6 @@ def get_team_history(team_id):
     try:
         history = teamyearbyyearstats.TeamYearByYearStats(
             team_id=team_id,
-            headers=HEADERS,
             timeout=API_TIMEOUT,
         )
         df = history.team_stats.get_data_frame()

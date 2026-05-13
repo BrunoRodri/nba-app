@@ -15,13 +15,7 @@ SECRET_KEY = config('SECRET_KEY', default='django-insecure-dev-key-only')
 # SECURITY WARNING: don't run with debug turned on in production!
 DEBUG = config('DEBUG', default=True, cast=bool)
 
-ALLOWED_HOSTS = ['*']
-
-CSRF_TRUSTED_ORIGINS = [
-    'https://*.railway.app',
-    'https://*.up.railway.app',
-    'http://localhost:8000',
-]
+ALLOWED_HOSTS = []
 
 
 # Application definition
@@ -80,14 +74,12 @@ TEMPLATES = [
 WSGI_APPLICATION = 'nba_explorer.wsgi.application'
 
 # ─── Database ────────────────────────────────────────────────────────
+# Se DATABASE_URL estiver presente (Docker ou Nuvem), usa ela. Caso contrário, SQLite.
 import dj_database_url
 _db_url = config('DATABASE_URL', default=None)
-
 DATABASES = {
     'default': dj_database_url.config(
         default=f"sqlite:///{BASE_DIR / 'db.sqlite3'}",
-        conn_max_age=600,
-        conn_health_checks=True,
     )
 }
 
@@ -126,23 +118,9 @@ STORAGES = {
 DEFAULT_AUTO_FIELD = 'django.db.models.BigAutoField'
 
 # ─── Celery Configuration ─────────────────────────────────────────────
-# Railway fornece REDIS_URL. Se não, tentamos montar.
-_redis_url = config('REDIS_URL', default=None)
-if _redis_url:
-    _redis_url = _redis_url.strip()
-
-if not _redis_url:
-    _rh = config('REDISHOST', default='redis').strip()
-    _rp = config('REDISPORT', default='6379').strip()
-    _rpass = config('REDISPASSWORD', default='').strip()
-    if _rpass:
-        _redis_url = f"redis://:{_rpass}@{_rh}:{_rp}/0"
-    else:
-        _redis_url = f"redis://{_rh}:{_rp}/0"
-
-print(f"DEBUG: Redis URL is configured (length: {len(_redis_url)})")
-
-CELERY_BROKER_URL = _redis_url
+# No Docker usamos 'redis', localmente 'localhost'
+_redis_host = config('REDIS_HOST', default='localhost')
+CELERY_BROKER_URL = f'redis://{_redis_host}:6379/1'
 CELERY_RESULT_BACKEND = 'django-db'
 CELERY_CACHE_BACKEND = 'django-cache'
 CELERY_ACCEPT_CONTENT = ['json']
@@ -155,7 +133,7 @@ CELERY_BEAT_SCHEDULER = 'django_celery_beat.schedulers:DatabaseScheduler'
 CACHES = {
     "default": {
         "BACKEND": "django.core.cache.backends.redis.RedisCache",
-        "LOCATION": _redis_url,
+        "LOCATION": f"redis://{_redis_host}:6379/1",
     }
 }
 
