@@ -4,30 +4,13 @@
 {% block title %}Classificação NBA {{ season }} — NBA Stats Explorer{% endblock %}
 
 {% block content %}
-<div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-10">
-    
+<div class="animate-in fade-in slide-in-from-bottom-4 duration-700">
     <!-- Title Section -->
-    <div class="mb-12 flex flex-col md:flex-row md:items-end md:justify-between gap-6">
-        <div>
-            <h1 class="text-4xl font-black text-slate-800 dark:text-white mb-2">
-                Classificação <span class="text-nba-blue">NBA</span>
-            </h1>
-            <p class="text-slate-500 dark:text-slate-400">Temporada Regular {{ season }}</p>
-        </div>
-        
-        <!-- Navigation Tabs -->
-        
-        
-            <div class="flex bg-slate-100 dark:bg-slate-800 p-1 rounded-xl shadow-inner border border-slate-200/50 dark:border-slate-700/50">
-            <button type="button" onclick="switchTab('standings')" id="btn-standings" 
-                    class="px-6 py-2 rounded-lg font-bold text-sm transition-all cursor-pointer bg-white dark:bg-slate-700 text-nba-blue shadow-sm">
-                Tabelas
-            </button>
-            <button type="button" onclick="switchTab('bracket')" id="btn-bracket" 
-                    class="px-6 py-2 rounded-lg font-bold text-sm transition-all cursor-pointer text-slate-500 dark:text-slate-400 hover:text-slate-700 dark:hover:text-slate-200">
-                Playoff Bracket
-            </button>
-        </div>
+    <div class="mb-10">
+        <h1 class="text-4xl font-black text-slate-800 dark:text-white mb-2">
+            Classificação <span class="text-nba-blue">NBA</span>
+        </h1>
+        <p class="text-slate-500 dark:text-slate-400">Temporada Regular {{ season }}</p>
     </div>
 
     {% if api_error %}
@@ -40,214 +23,131 @@
     </div>
     {% else %}
     
-    <!-- Tab 1: Standings Tables -->
-    <div id="tab-standings" class="tab-content">
-        <div class="flex flex-col lg:grid lg:grid-cols-2 gap-x-12">
-            <!-- Eastern Conference -->
-            <div class="flex-1 min-w-0">
-                <div class="flex items-center gap-4 px-2 mb-8">
-                    <div class="w-12 h-12 rounded-xl bg-nba-blue/10 flex items-center justify-center shadow-sm">
-                        <span class="font-bold text-nba-blue">E</span>
-                    </div>
-                    <h2 class="text-2xl font-bold text-slate-800 dark:text-white">Conferência Leste</h2>
+    <div class="flex flex-col lg:grid lg:grid-cols-2 gap-x-12">
+        <!-- Eastern Conference -->
+        <div class="flex-1 min-w-0">
+            <div class="flex items-center gap-4 px-2 mb-8">
+                <div class="w-12 h-12 rounded-xl bg-nba-blue/10 flex items-center justify-center shadow-sm">
+                    <span class="font-bold text-nba-blue">E</span>
                 </div>
+                <h2 class="text-2xl font-bold text-slate-800 dark:text-white">Conferência Leste</h2>
+            </div>
 
-                <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 overflow-hidden shadow-sm">
-                    <div class="overflow-x-auto">
-                        <table class="stats-table w-full text-sm">
-                            <thead>
-                                <tr class="text-left border-b border-slate-200 dark:border-slate-700">
-                                    <th class="px-6 py-5 font-semibold text-slate-500 dark:text-slate-400">#</th>
-                                    <th class="px-6 py-5 font-semibold text-slate-500 dark:text-slate-400">Time</th>
-                                    <th class="px-6 py-5 font-semibold text-slate-500 dark:text-slate-400 text-center">V</th>
-                                    <th class="px-6 py-5 font-semibold text-slate-500 dark:text-slate-400 text-center">D</th>
-                                    <th class="px-6 py-5 font-semibold text-slate-500 dark:text-slate-400 text-center">%</th>
-                                    <th class="px-6 py-5 font-semibold text-slate-500 dark:text-slate-400 text-center">JA</th>
-                                    <th class="px-6 py-5 font-semibold text-slate-500 dark:text-slate-400 text-center">Seq</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-100 dark:divide-slate-700/50">
-                                {% for team in standings.East %}
-                                <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors cursor-pointer group" 
-                                    data-href="{% url 'stats:team_detail' team.TeamID %}" 
-                                    onclick="if(this.dataset.href) window.location.href=this.dataset.href">
-                                    <td class="px-6 py-5 font-bold">
-                                        {% if team.PlayoffRank <= 6 %}
-                                            <span style="color: #10b981 !important;">{{ team.PlayoffRank }}</span>
-                                        {% elif team.PlayoffRank <= 10 %}
-                                            <span style="color: #f59e0b !important;">{{ team.PlayoffRank }}</span>
-                                        {% else %}
-                                            <span class="text-slate-400">{{ team.PlayoffRank }}</span>
-                                        {% endif %}
-                                    </td>
-                                    <td class="px-6 py-5">
-                                        <div class="flex items-center gap-4">
-                                            <img src="https://cdn.nba.com/logos/nba/{{ team.TeamID }}/global/L/logo.svg" alt="{{ team.TeamName }}" class="w-8 h-8 object-contain">
-                                            <div class="min-w-0">
-                                                <div class="font-bold text-slate-700 dark:text-slate-200 group-hover:text-nba-blue transition-colors truncate">
-                                                    {{ team.TeamCity }} {{ team.TeamName }}
-                                                </div>
+            <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 overflow-hidden shadow-sm">
+                <div class="overflow-x-auto">
+                    <table class="stats-table w-full text-sm">
+                        <thead>
+                            <tr class="text-left border-b border-slate-200 dark:border-slate-700">
+                                <th class="px-6 py-5 font-semibold text-slate-500 dark:text-slate-400">#</th>
+                                <th class="px-6 py-5 font-semibold text-slate-500 dark:text-slate-400">Time</th>
+                                <th class="px-6 py-5 font-semibold text-slate-500 dark:text-slate-400 text-center">V</th>
+                                <th class="px-6 py-5 font-semibold text-slate-500 dark:text-slate-400 text-center">D</th>
+                                <th class="px-6 py-5 font-semibold text-slate-500 dark:text-slate-400 text-center">%</th>
+                                <th class="px-6 py-5 font-semibold text-slate-500 dark:text-slate-400 text-center">JA</th>
+                                <th class="px-6 py-5 font-semibold text-slate-500 dark:text-slate-400 text-center">Seq</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 dark:divide-slate-700/50">
+                            {% for team in standings.East %}
+                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors cursor-pointer group" 
+                                data-href="{% url 'stats:team_detail' team.TeamID %}" 
+                                onclick="if(this.dataset.href) window.location.href=this.dataset.href">
+                                <td class="px-6 py-5 font-bold">
+                                    {% if team.PlayoffRank <= 6 %}
+                                        <span class="text-emerald-500">{{ team.PlayoffRank }}</span>
+                                    {% elif team.PlayoffRank <= 10 %}
+                                        <span class="text-amber-500">{{ team.PlayoffRank }}</span>
+                                    {% else %}
+                                        <span class="text-slate-400">{{ team.PlayoffRank }}</span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-6 py-5">
+                                    <div class="flex items-center gap-4">
+                                        <img src="https://cdn.nba.com/logos/nba/{{ team.TeamID }}/global/L/logo.svg" alt="{{ team.TeamName }}" class="w-8 h-8 object-contain">
+                                        <div class="min-w-0">
+                                            <div class="font-bold text-slate-700 dark:text-slate-200 group-hover:text-nba-blue transition-colors truncate">
+                                                {{ team.TeamCity }} {{ team.TeamName }}
                                             </div>
                                         </div>
-                                    </td>
-                                    <td class="px-6 py-5 text-center font-bold text-slate-700 dark:text-slate-200">{{ team.WINS }}</td>
-                                    <td class="px-6 py-5 text-center font-bold text-slate-700 dark:text-slate-200">{{ team.LOSSES }}</td>
-                                    <td class="px-6 py-5 text-center text-slate-500 dark:text-slate-400">{{ team.WinPCT|floatformat:3 }}</td>
-                                    <td class="px-6 py-5 text-center text-slate-500 dark:text-slate-400">{{ team.ConferenceGamesBack|default:"-" }}</td>
-                                    <td class="px-6 py-5 text-center">
-                                        <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase {% if '-' in team.CurrentStreak %}bg-red-500/10 text-red-500{% else %}bg-emerald-500/10 text-emerald-500{% endif %}">{{ team.CurrentStreak }}</span>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-5 text-center font-bold text-slate-700 dark:text-slate-200">{{ team.WINS }}</td>
+                                <td class="px-6 py-5 text-center font-bold text-slate-700 dark:text-slate-200">{{ team.LOSSES }}</td>
+                                <td class="px-6 py-5 text-center text-slate-500 dark:text-slate-400">{{ team.WinPCT|floatformat:3 }}</td>
+                                <td class="px-6 py-5 text-center text-slate-500 dark:text-slate-400">{{ team.ConferenceGamesBack|default:"-" }}</td>
+                                <td class="px-6 py-5 text-center">
+                                    <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase {% if '-' in team.CurrentStreak %}bg-red-500/10 text-red-500{% else %}bg-emerald-500/10 text-emerald-500{% endif %}">{{ team.CurrentStreak }}</span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
             </div>
+        </div>
 
-            <!-- Western Conference -->
-            <div class="flex-1 min-w-0 mt-12 lg:mt-0">
-                <div class="flex items-center gap-4 px-2 mb-8">
-                    <div class="w-12 h-12 rounded-xl bg-nba-red/10 flex items-center justify-center shadow-sm">
-                        <span class="font-bold text-nba-red">W</span>
-                    </div>
-                    <h2 class="text-2xl font-bold text-slate-800 dark:text-white">Conferência Oeste</h2>
+        <!-- Western Conference -->
+        <div class="flex-1 min-w-0 mt-12 lg:mt-0">
+            <div class="flex items-center gap-4 px-2 mb-8">
+                <div class="w-12 h-12 rounded-xl bg-nba-red/10 flex items-center justify-center shadow-sm">
+                    <span class="font-bold text-nba-red">W</span>
                 </div>
+                <h2 class="text-2xl font-bold text-slate-800 dark:text-white">Conferência Oeste</h2>
+            </div>
 
-                <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 overflow-hidden shadow-sm">
-                    <div class="overflow-x-auto">
-                        <table class="stats-table w-full text-sm">
-                            <thead>
-                                <tr class="text-left border-b border-slate-200 dark:border-slate-700">
-                                    <th class="px-6 py-5 font-semibold text-slate-500 dark:text-slate-400">#</th>
-                                    <th class="px-6 py-5 font-semibold text-slate-500 dark:text-slate-400">Time</th>
-                                    <th class="px-6 py-5 font-semibold text-slate-500 dark:text-slate-400 text-center">V</th>
-                                    <th class="px-6 py-5 font-semibold text-slate-500 dark:text-slate-400 text-center">D</th>
-                                    <th class="px-6 py-5 font-semibold text-slate-500 dark:text-slate-400 text-center">%</th>
-                                    <th class="px-6 py-5 font-semibold text-slate-500 dark:text-slate-400 text-center">JA</th>
-                                    <th class="px-6 py-5 font-semibold text-slate-500 dark:text-slate-400 text-center">Seq</th>
-                                </tr>
-                            </thead>
-                            <tbody class="divide-y divide-slate-100 dark:divide-slate-700/50">
-                                {% for team in standings.West %}
-                                <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors cursor-pointer group" 
-                                    data-href="{% url 'stats:team_detail' team.TeamID %}" 
-                                    onclick="if(this.dataset.href) window.location.href=this.dataset.href">
-                                    <td class="px-6 py-5 font-bold">
-                                        {% if team.PlayoffRank <= 6 %}
-                                            <span style="color: #10b981 !important;">{{ team.PlayoffRank }}</span>
-                                        {% elif team.PlayoffRank <= 10 %}
-                                            <span style="color: #f59e0b !important;">{{ team.PlayoffRank }}</span>
-                                        {% else %}
-                                            <span class="text-slate-400">{{ team.PlayoffRank }}</span>
-                                        {% endif %}
-                                    </td>
-                                    <td class="px-6 py-5">
-                                        <div class="flex items-center gap-4">
-                                            <img src="https://cdn.nba.com/logos/nba/{{ team.TeamID }}/global/L/logo.svg" alt="{{ team.TeamName }}" class="w-8 h-8 object-contain">
-                                            <div class="min-w-0">
-                                                <div class="font-bold text-slate-700 dark:text-slate-200 group-hover:text-nba-blue transition-colors truncate">
-                                                    {{ team.TeamCity }} {{ team.TeamName }}
-                                                </div>
+            <div class="bg-white dark:bg-slate-800 rounded-2xl border border-slate-100 dark:border-slate-700 overflow-hidden shadow-sm">
+                <div class="overflow-x-auto">
+                    <table class="stats-table w-full text-sm">
+                        <thead>
+                            <tr class="text-left border-b border-slate-200 dark:border-slate-700">
+                                <th class="px-6 py-5 font-semibold text-slate-500 dark:text-slate-400">#</th>
+                                <th class="px-6 py-5 font-semibold text-slate-500 dark:text-slate-400">Time</th>
+                                <th class="px-6 py-5 font-semibold text-slate-500 dark:text-slate-400 text-center">V</th>
+                                <th class="px-6 py-5 font-semibold text-slate-500 dark:text-slate-400 text-center">D</th>
+                                <th class="px-6 py-5 font-semibold text-slate-500 dark:text-slate-400 text-center">%</th>
+                                <th class="px-6 py-5 font-semibold text-slate-500 dark:text-slate-400 text-center">JA</th>
+                                <th class="px-6 py-5 font-semibold text-slate-500 dark:text-slate-400 text-center">Seq</th>
+                            </tr>
+                        </thead>
+                        <tbody class="divide-y divide-slate-100 dark:divide-slate-700/50">
+                            {% for team in standings.West %}
+                            <tr class="hover:bg-slate-50 dark:hover:bg-slate-700/30 transition-colors cursor-pointer group" 
+                                data-href="{% url 'stats:team_detail' team.TeamID %}" 
+                                onclick="if(this.dataset.href) window.location.href=this.dataset.href">
+                                <td class="px-6 py-5 font-bold">
+                                    {% if team.PlayoffRank <= 6 %}
+                                        <span class="text-emerald-500">{{ team.PlayoffRank }}</span>
+                                    {% elif team.PlayoffRank <= 10 %}
+                                        <span class="text-amber-500">{{ team.PlayoffRank }}</span>
+                                    {% else %}
+                                        <span class="text-slate-400">{{ team.PlayoffRank }}</span>
+                                    {% endif %}
+                                </td>
+                                <td class="px-6 py-5">
+                                    <div class="flex items-center gap-4">
+                                        <img src="https://cdn.nba.com/logos/nba/{{ team.TeamID }}/global/L/logo.svg" alt="{{ team.TeamName }}" class="w-8 h-8 object-contain">
+                                        <div class="min-w-0">
+                                            <div class="font-bold text-slate-700 dark:text-slate-200 group-hover:text-nba-blue transition-colors truncate">
+                                                {{ team.TeamCity }} {{ team.TeamName }}
                                             </div>
                                         </div>
-                                    </td>
-                                    <td class="px-6 py-5 text-center font-bold text-slate-700 dark:text-slate-200">{{ team.WINS }}</td>
-                                    <td class="px-6 py-5 text-center font-bold text-slate-700 dark:text-slate-200">{{ team.LOSSES }}</td>
-                                    <td class="px-6 py-5 text-center text-slate-500 dark:text-slate-400">{{ team.WinPCT|floatformat:3 }}</td>
-                                    <td class="px-6 py-5 text-center text-slate-500 dark:text-slate-400">{{ team.ConferenceGamesBack|default:"-" }}</td>
-                                    <td class="px-6 py-5 text-center">
-                                        <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase {% if '-' in team.CurrentStreak %}bg-red-500/10 text-red-500{% else %}bg-emerald-500/10 text-emerald-500{% endif %}">{{ team.CurrentStreak }}</span>
-                                    </td>
-                                </tr>
-                                {% endfor %}
-                            </tbody>
-                        </table>
-                    </div>
+                                    </div>
+                                </td>
+                                <td class="px-6 py-5 text-center font-bold text-slate-700 dark:text-slate-200">{{ team.WINS }}</td>
+                                <td class="px-6 py-5 text-center font-bold text-slate-700 dark:text-slate-200">{{ team.LOSSES }}</td>
+                                <td class="px-6 py-5 text-center text-slate-500 dark:text-slate-400">{{ team.WinPCT|floatformat:3 }}</td>
+                                <td class="px-6 py-5 text-center text-slate-500 dark:text-slate-400">{{ team.ConferenceGamesBack|default:"-" }}</td>
+                                <td class="px-6 py-5 text-center">
+                                    <span class="px-2 py-0.5 rounded text-[10px] font-bold uppercase {% if '-' in team.CurrentStreak %}bg-red-500/10 text-red-500{% else %}bg-emerald-500/10 text-emerald-500{% endif %}">{{ team.CurrentStreak }}</span>
+                                </td>
+                            </tr>
+                            {% endfor %}
+                        </tbody>
+                    </table>
                 </div>
             </div>
         </div>
-
-        <!-- Legend -->
-        <div class="py-12">
-            <div class="flex flex-wrap items-center justify-center gap-8 text-sm font-medium">
-                <div class="flex items-center gap-4">
-                    <span class="w-2.5 h-2.5 rounded-full" style="background-color: #10b981;"></span>
-                    <span style="color: #10b981;">Playoffs (1-6)</span>
-                </div>
-                <div class="flex items-center gap-4">
-                    <span class="w-2.5 h-2.5 rounded-full" style="background-color: #f59e0b;"></span>
-                    <span style="color: #f59e0b;">Play-In (7-10)</span>
-                </div>
-                <div class="flex items-center gap-4 text-slate-500 dark:text-slate-400">
-                    <span class="w-2.5 h-2.5 rounded-full bg-slate-400"></span>
-                    <span>Eliminado</span>
-                </div>
-            </div>
-        </div>
-    </div>
-
-    <!-- Tab 2: Playoff Bracket (Async Placeholder) -->
-    <div id="tab-bracket" class="hidden">
-        <div id="bracket-loader" class="flex flex-col items-center justify-center py-20 gap-4">
-            <div class="w-10 h-10 border-4 border-slate-200 dark:border-slate-700 border-t-nba-blue rounded-full animate-spin"></div>
-            <p class="text-sm text-slate-500 animate-pulse">Carregando chaveamento dos playoffs...</p>
-        </div>
-        <div id="bracket-content"></div>
     </div>
     {% endif %}
 </div>
-{% endblock %}
-
-{% block extra_js %}
-<script>
-
-    
-
-    function switchTab(tab) {
-        const standingsTab = document.getElementById('tab-standings');
-        const bracketTab = document.getElementById('tab-bracket');
-        const btnStandings = document.getElementById('btn-standings');
-        const btnBracket = document.getElementById('btn-bracket');
-
-        if (!standingsTab || !bracketTab || !btnStandings || !btnBracket) return;
-
-        if (tab === 'standings') {
-            standingsTab.classList.remove('hidden');
-            bracketTab.classList.add('hidden');
-            btnStandings.classList.add('bg-white', 'dark:bg-slate-700', 'text-nba-blue', 'shadow-sm');
-            btnStandings.classList.remove('text-slate-500', 'dark:text-slate-400');
-            btnBracket.classList.remove('bg-white', 'dark:bg-slate-700', 'text-nba-blue', 'shadow-sm');
-            btnBracket.classList.add('text-slate-500', 'dark:text-slate-400');
-        } else {
-            standingsTab.classList.add('hidden');
-            bracketTab.classList.remove('hidden');
-            btnBracket.classList.add('bg-white', 'dark:bg-slate-700', 'text-nba-blue', 'shadow-sm');
-            btnBracket.classList.remove('text-slate-500', 'dark:text-slate-400');
-            btnStandings.classList.remove('bg-white', 'dark:bg-slate-700', 'text-nba-blue', 'shadow-sm');
-            btnStandings.classList.add('text-slate-500', 'dark:text-slate-400');
-        }
-    }
-
-    // Load bracket asynchronously
-    document.addEventListener('DOMContentLoaded', function() {
-        fetch('{% url "stats:bracket_api" %}')
-            .then(response => response.text())
-            .then(html => {
-                const container = document.getElementById('bracket-content');
-                const loader = document.getElementById('bracket-loader');
-                if (container && loader) {
-                    container.innerHTML = html;
-                    loader.classList.add('hidden');
-                }
-            })
-            .catch(err => {
-                console.error('Error loading bracket:', err);
-                const loader = document.getElementById('bracket-loader');
-                if (loader) {
-                    loader.innerHTML = '<p class="text-red-500 p-8 text-center">Erro ao carregar o bracket. Tente novamente.</p>';
-                }
-            });
-    });
-</script>
 {% endblock %}

@@ -1,0 +1,49 @@
+{% extends "stats/base.html" %}
+{% load stat_filters %}
+
+{% block title %}Playoff Bracket NBA {{ season }} — NBA Stats Explorer{% endblock %}
+
+{% block content %}
+<div class="animate-in fade-in slide-in-from-bottom-4 duration-700">
+    <!-- Title Section -->
+    <div class="mb-10">
+        <h1 class="text-4xl font-black text-slate-800 dark:text-white mb-2">
+            Playoff <span class="text-nba-blue">Bracket</span>
+        </h1>
+        <p class="text-slate-500 dark:text-slate-400">Temporada {{ season }}</p>
+    </div>
+
+    <!-- Async Bracket Container -->
+    <div id="bracket-container">
+        <div id="bracket-loader" class="flex flex-col items-center justify-center py-20 gap-4 bg-white dark:bg-slate-900 rounded-3xl border border-slate-100 dark:border-slate-800 shadow-sm">
+            <div class="w-10 h-10 border-4 border-slate-200 dark:border-slate-700 border-t-nba-blue rounded-full animate-spin"></div>
+            <p class="text-sm text-slate-500 animate-pulse">Carregando chaveamento dos playoffs...</p>
+        </div>
+        <div id="bracket-content"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block extra_js %}
+<script>
+    document.addEventListener('DOMContentLoaded', function() {
+        fetch('{% url "stats:bracket_api" %}')
+            .then(response => response.text())
+            .then(html => {
+                const container = document.getElementById('bracket-content');
+                const loader = document.getElementById('bracket-loader');
+                if (container && loader) {
+                    container.innerHTML = html;
+                    loader.classList.add('hidden');
+                }
+            })
+            .catch(err => {
+                console.error('Error loading bracket:', err);
+                const loader = document.getElementById('bracket-loader');
+                if (loader) {
+                    loader.innerHTML = '<div class="p-12 text-center"><p class="text-red-500 mb-4">Erro ao carregar o chaveamento. Tente novamente.</p><button onclick="window.location.reload()" class="px-6 py-2 bg-slate-200 dark:bg-slate-700 rounded-xl text-sm font-bold">Recarregar</button></div>';
+                }
+            });
+    });
+</script>
+{% endblock %}

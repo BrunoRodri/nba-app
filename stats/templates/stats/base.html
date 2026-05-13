@@ -21,105 +21,106 @@
     <link rel="stylesheet" href="{% static 'css/main.css' %}?v=2">
 
 </head>
+
 <body class="bg-bg-light dark:bg-bg-dark text-slate-800 dark:text-slate-100 font-sans transition-colors duration-300 min-h-screen flex flex-col">
 
-    <!-- ═══ Navbar ═══ -->
-    <nav class="sticky top-0 z-50 glass border-b border-slate-200/50 dark:border-slate-700/50" id="main-nav">
-        <div class="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
-            <div class="flex items-center justify-between h-16">
+    <!-- ═══ Fixed Navbar ═══ -->
+    
+    
+    
+    
+    
+    <nav class="fixed top-0 left-0 right-0 z-[10000] bg-[#020617] border-b border-slate-800 h-16 w-full">
+        <div class="max-w-7xl mx-auto px-4 h-full">
+            <div class="flex items-center justify-between h-full relative">
+                
                 <!-- Logo -->
-                <a href="{% url 'stats:index' %}" class="flex items-center gap-3 group" id="nav-logo">
-                    <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-nba-blue to-nba-red flex items-center justify-center shadow-lg group-hover:shadow-xl transition-shadow">
-                        <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <circle cx="12" cy="12" r="10" stroke-width="2"/>
-                            <path stroke-width="2" d="M12 2C6.48 2 2 6.48 2 12s4.48 10 10 10"/>
-                            <path stroke-width="2" d="M2 12h20"/>
-                            <path stroke-width="2.5" stroke-linecap="round" d="M12 6v12"/>
-                        </svg>
-                    </div>
-                    <span class="text-lg font-bold bg-gradient-to-r from-nba-blue to-nba-red bg-clip-text text-transparent hidden sm:block">
-                        NBA Stats Explorer
-                    </span>
-                </a>
-
-                <!-- Nav Links -->
-                <div class="hidden md:flex items-center gap-6 ml-8">
-                    <a href="{% url 'stats:standings' %}" class="text-sm font-semibold text-slate-600 dark:text-slate-300 hover:text-nba-blue dark:hover:text-nba-blue transition-colors flex items-center gap-2 group/nav">
-                        <svg class="w-4 h-4 text-slate-400 group-hover/nav:text-nba-blue transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                        </svg>
-                        Classificação
+                <div class="w-1/4 flex items-center">
+                    <a href="{% url 'stats:index' %}" class="flex items-center gap-3">
+                        <div class="w-10 h-10 rounded-xl bg-gradient-to-br from-nba-blue to-nba-red flex items-center justify-center shadow-lg">
+                            <svg class="w-6 h-6 text-white" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <circle cx="12" cy="12" r="10" stroke-width="2"/><path stroke-width="2" d="M2 12h20"/><path stroke-width="2.5" stroke-linecap="round" d="M12 6v12"/>
+                            </svg>
+                        </div>
+                        <span class="text-base font-bold text-white hidden md:block">NBA Explorer</span>
                     </a>
                 </div>
 
-                <!-- Search bar (desktop) -->
-                <form action="{% url 'stats:search' %}" method="GET" class="relative z-50 hidden md:flex flex-1 max-w-md mx-8" id="nav-search-form">
-                    <div class="relative w-full group">
+                <!-- Center: Search Bar -->
+                <div class="flex-1 flex justify-center px-4">
+                    <form action="{% url 'stats:search' %}" method="GET" class="w-full max-w-lg relative">
                         <input
                             type="text"
                             name="q"
                             placeholder="Buscar jogador ou time..."
                             value="{{ request.GET.q|default:'' }}"
-                            class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-sm placeholder-slate-400 dark:placeholder-slate-500 focus:outline-none focus:ring-2 focus:ring-nba-blue/50 focus:border-nba-blue transition-all"
-                            id="nav-search-input"
-                            autocomplete="off"
+                            class="w-full pl-12 pr-4 py-2.5 rounded-xl border border-slate-700 bg-slate-900 text-white text-base focus:outline-none focus:ring-2 focus:ring-nba-blue/50"
                         >
-                        <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400 group-focus-within:text-nba-blue transition-colors" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                        </svg>
-                        
-                        <!-- Autocomplete Dropdown (Desktop) -->
-                        <div id="nav-search-suggestions" class="absolute left-0 right-0 top-full mt-2 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden z-50 hidden opacity-0 transition-opacity duration-200">
-                            <!-- Populated by JS -->
+                        <div class="absolute left-4 top-1/2 -translate-y-1/2">
+                            <svg class="w-5 h-5 text-slate-500" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
+                            </svg>
                         </div>
-                    </div>
-                </form>
-
-                <!-- Right side: Theme toggle + mobile menu -->
-                <div class="flex items-center gap-3">
-                    <!-- Mobile Standings Link -->
-                    <a href="{% url 'stats:standings' %}" class="md:hidden w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 flex items-center justify-center transition-all text-slate-600 dark:text-slate-400" title="Classificação">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2zm0 0V9a2 2 0 012-2h2a2 2 0 012 2v10m-6 0a2 2 0 002 2h2a2 2 0 002-2m0 0V5a2 2 0 012-2h2a2 2 0 012 2v14a2 2 0 01-2 2h-2a2 2 0 01-2-2z"/>
-                        </svg>
-                    </a>
-                    <!-- Mobile menu button -->
-                    <button id="mobile-menu-btn" class="md:hidden w-10 h-10 rounded-xl bg-slate-100 dark:bg-slate-800 hover:bg-slate-200 dark:hover:bg-slate-700 flex items-center justify-center transition-all" aria-label="Menu">
-                        <svg class="w-5 h-5" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
-                        </svg>
-                    </button>
+                    </form>
                 </div>
-            </div>
 
-            <!-- Mobile search (hidden by default) -->
-            <div id="mobile-search" class="md:hidden pb-4 hidden">
-                <form action="{% url 'stats:search' %}" method="GET">
+                <!-- Right: Icon Menu -->
+                <div class="w-1/4 flex justify-end relative z-[20000]">
                     <div class="relative">
-                        <input
-                            type="text"
-                            name="q"
-                            placeholder="Buscar jogador ou time..."
-                            value="{{ request.GET.q|default:'' }}"
-                            class="w-full pl-10 pr-4 py-2.5 rounded-xl border border-slate-200 dark:border-slate-600 bg-white dark:bg-slate-800 text-sm placeholder-slate-400 focus:outline-none focus:ring-2 focus:ring-nba-blue/50 transition-all"
-                            id="mobile-search-input"
-                        >
-                        <svg class="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-slate-400" fill="none" stroke="currentColor" viewBox="0 0 24 24">
-                            <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M21 21l-6-6m2-5a7 7 0 11-14 0 7 7 0 0114 0z"/>
-                        </svg>
-
-                        <!-- Autocomplete Dropdown (Mobile) -->
-                        <div id="mobile-search-suggestions" class="absolute left-0 right-0 top-full mt-2 bg-white dark:bg-slate-800 rounded-xl shadow-xl border border-slate-200 dark:border-slate-700 overflow-hidden z-50 hidden opacity-0 transition-opacity duration-200">
-                            <!-- Populated by JS -->
+                        <button id="menu-dropdown-btn" type="button" class="flex items-center justify-center w-12 h-12 text-white hover:bg-slate-800 rounded-2xl transition-colors cursor-pointer focus:outline-none">
+                            <svg class="w-8 h-8" fill="none" stroke="currentColor" viewBox="0 0 24 24">
+                                <path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M4 6h16M4 12h16M4 18h16"/>
+                            </svg>
+                        </button>
+                        
+                        <!-- Dropdown Content (FORCED SOLID BACKGROUND) -->
+                        <div id="menu-dropdown-content" class="absolute right-0 mt-3 w-72 rounded-2xl shadow-[0_25px_60px_rgba(0,0,0,0.9)] border border-slate-600 overflow-hidden hidden" 
+                             style="z-index: 999999 !important; background-color: #0f172a !important; opacity: 1 !important;">
+                            <div class="py-2">
+                                <a href="{% url 'stats:standings' %}" class="flex items-center gap-4 px-6 py-5 text-sm font-bold text-white hover:bg-slate-800 transition-all border-b border-slate-800">
+                                    <svg class="w-6 h-6 text-nba-blue" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M9 19v-6a2 2 0 00-2-2H5a2 2 0 00-2 2v6a2 2 0 002 2h2a2 2 0 002-2z"/></svg>
+                                    CLASSIFICAÇÃO
+                                </a>
+                                <a href="{% url 'stats:playoffs' %}" class="flex items-center gap-4 px-6 py-5 text-sm font-bold text-white hover:bg-slate-800 transition-all">
+                                    <svg class="w-6 h-6 text-nba-red" fill="none" stroke="currentColor" viewBox="0 0 24 24"><path stroke-linecap="round" stroke-linejoin="round" stroke-width="2" d="M13 10V3L4 14h7v7l9-11h-7z"/></svg>
+                                    PLAYOFFS
+                                </a>
+                            </div>
                         </div>
                     </div>
-                </form>
+                </div>
+
             </div>
         </div>
     </nav>
 
-    <!-- ═══ Main Content ═══ -->
-    <main class="flex-1 page-transition">
+
+
+
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            const btn = document.getElementById('menu-dropdown-btn');
+            const menu = document.getElementById('menu-dropdown-content');
+            
+            if (btn && menu) {
+                btn.addEventListener('click', function(e) {
+                    e.stopPropagation();
+                    menu.classList.toggle('hidden');
+                });
+                
+                document.addEventListener('click', function() {
+                    menu.classList.add('hidden');
+                });
+            }
+        });
+    </script>
+
+
+
+    <!-- Content Wrapper with Padding for Fixed Nav -->
+    <div class="pt-16 flex-1 flex flex-col">
+
+    <main class="flex-1">
         {% block content %}{% endblock %}
     </main>
 

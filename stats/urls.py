@@ -11,6 +11,7 @@ urlpatterns = [
     path('team/<int:team_id>/season/<str:season>/', views.team_season_games, name='team_season_games'),
     path('game/<str:game_id>/', views.game_detail, name='game_detail'),
     path('standings/', views.standings, name='standings'),
+    path('playoffs/', views.playoffs, name='playoffs'),
     path('api/search/', views.search_api, name='search_api'),
     path('api/bracket/', views.bracket_api, name='bracket_api'),
 ]

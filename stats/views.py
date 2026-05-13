@@ -191,6 +191,14 @@ def standings(request):
         'standings': standings_data,
         
         'season': services.get_current_season(),
-        'api_error': not standings_data,
+        'api_error': not standings_data, 'active_page': 'standings',
     }
     return render(request, 'stats/standings.html', context)
+
+def playoffs(request):
+    """View for the dedicated playoff bracket page."""
+    season = services.get_current_season()
+    return render(request, 'stats/playoffs.html', {
+        'season': season,
+        'active_page': 'playoffs'
+    })
